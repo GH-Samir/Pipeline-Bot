@@ -3,6 +3,7 @@ pipeline inside Herdr."""
 
 import os
 import sys
+import herdr_client
 
 
 def preflight():
@@ -18,3 +19,12 @@ def preflight():
 if __name__ == "__main__":
     preflight()
     print("preflight ok: inside Herdr")
+
+    try:
+        panes = herdr_client.call("pane", "list")
+    # The base, so every failure kind lands here -- including ones added later.
+    except herdr_client.HerdrError as exc:
+        print(f"pipeline failed: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    print(panes)
