@@ -47,6 +47,11 @@ data. → [[herdr-wait-trap]] [[try-except]]
 `response["result"]["pane"]["pane_id"]`. The only layout-creating call in the
 wrapper. → [[pane-agent-primitives]] [[json-response-shapes]]
 
+**Written so far (Section 3.3):** `start_agent(name, pane_id, kind="claude")` —
+wraps `agent start <NAME> --kind <KIND> --pane <ID>` and returns
+`response["result"]["agent"]`, the AgentInfo object (`agent_status`, `pane_id`,
+`interactive_ready`, …). → [[pane-agent-primitives]] [[agent-kind-choice]]
+
 **Section 2 complete (2026-09-02).** `run()` + `call()` + four exception types.
 Known gap: the exit-1 branch parses stderr outside any `try`. — wiring the exit codes to those types, and
 the exit-code handling that stops the `herdr wait` trap from silently passing.

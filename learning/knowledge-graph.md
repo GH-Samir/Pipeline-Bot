@@ -64,8 +64,13 @@ a synonym for finished. `agent wait` with no `--until` matches idle|done|blocked
 > **2026-09-02:** Named `idle` correctly in the race probe. The seen-in-UI
 > mechanism and the `done` default were supplied by me.
 
-### resource-cleanup — `seed`
+### resource-cleanup — `practicing`
 Close only the panes we created; never tear down panes we merely found.
+> **2026-09-02 (Section 3.2):** The deliberate break split a pane and *then*
+> crashed reading the reply. Asked what that costs at cleanup time: "it will
+> have panes open that it doesnt know aobut" -- correct, in own words, and the
+> exact reason cleanup tracks ids rather than guessing. Also the first time the
+> learner named a side effect surviving a failure.
 
 ### parallelism-vs-concurrency — `seed`
 Underpins the fan-out. Not yet discussed.
@@ -103,7 +108,7 @@ help. `subprocess.run(..., check=True)` sails past it and returns help text as
 data. Verified live 2026-09-02.
 `depends-on:` [[subprocess-exit-contract]]
 
-### json-response-shapes — `introduced`
+### json-response-shapes — `practicing`
 Success `{"id":…,"result":{"type":…}}`; error `{"id":…,"error":{"code","message"}}`.
 `pane split` → `result.pane.pane_id`; `agent get` → `result.agent.agent_status`;
 `agent read` → `result.read.text`. `agent wait` returns a *wait_matched event*,
@@ -125,6 +130,12 @@ thing). `call()` returns the whole envelope, so reads start `response["result"]`
 > **2026-09-02 (Section 3.1):** Split a pane from the CLI and then from Python,
 > and saw the empty shell prompt that `agent start` will later take over.
 > `split_pane()` is the only function in the wrapper that creates layout.
+> **2026-09-02 (Section 3.3):** Wrote `start_agent(name, pane_id, kind)` and
+> booted a real Claude Code agent into a pane their own code had split. First
+> miss: passed only the variables to `call()`, dropping the literal subcommand
+> and flags -- `herdr writer claude w1:p2`. Second miss: `--kind` omitted, which
+> their own `HerdrUsageError` caught and named ("unknown option: claude").
+> Asked how to close panes unprompted -- the right instinct at the right time.
 
 ### default-parameter-values — `introduced`
 `def split_pane(direction="right")` — a parameter with a fallback, so callers
@@ -299,6 +310,14 @@ the transport can be swapped without `pipeline.py` noticing.
 > variable from `preflight()` as if it lived in the imported module. Corrected
 > after being pointed at the four class names. The split is now real --
 > `pipeline.py` contains no `subprocess` call and never mentions exit codes.
+
+### agent-kind-choice — `practicing`
+`--kind claude` is one of 22 supported kinds. Nothing structural depends on it:
+herdr owns launch, detection and lifecycle for every kind, so the pipeline never
+learns what any particular agent's UI looks like.
+> **2026-09-02 (Section 3.3):** Asked what would have to change to run `codex`
+> instead. Answered "change to --kind codex" -- correct, unprompted, and the
+> point of the inherited decision.
 
 ### language-choice-tradeoffs — `introduced`
 Choosing a language by what the program spends its time doing. A program that
