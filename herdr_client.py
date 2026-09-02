@@ -115,3 +115,17 @@ def prompt_agent(target, text):
 
     response = call("agent", "prompt", target, text)
     return response["result"]["agent"]
+
+
+def wait_for_agent(target, until, timeout_ms=300000):
+    """Block until the agent reaches `until`, or the timeout expires.
+
+    Returns the matched result. Verified live 2026-09-03: herdr 0.8.2 answers a
+    wait with an `agent_info` payload, so the agent's state is right there --
+    `result["agent"]["agent_status"]`, no follow-up `agent get` needed.
+    """
+
+    # argv is always text: timeout_ms is an int and must be converted.
+    response = call("agent", "wait", target, "--until", until, "--timeout", str(timeout_ms))
+
+    return response["result"]

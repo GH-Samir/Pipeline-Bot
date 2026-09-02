@@ -24,6 +24,12 @@ stage, not a deficit. Everything below marked `practicing` was demonstrated
 ## Orchestration mechanics
 
 ### fan-out-serialisation — `practicing`
+> **2026-09-03 (Section 4.3):** Applied to a real design choice. Asked what
+> `prompt --wait` does to three writers in a spawn-all/submit-all/wait-all
+> stage; answered "idk" and asked whether A would be better -- the honest
+> question, at the right moment. Mechanism (submission blocking serialises the
+> fan-out; 3x wall-clock) supplied by me, tied back to their own adoption
+> answer. Decision recorded in plan.md as B, with the revisit condition.
 Why a stage runs spawn-all → submit-all → wait-all as three separate loops, and
 not one loop per agent.
 `depends-on:` [[stage-abstraction]]
@@ -41,6 +47,15 @@ matches the pre-prompt settled state. Fix is to wait for the transition into
 > Answered "idle" — correct state identification. The consequence chain (empty
 > diff → reviewer fed nothing → false PASS) was supplied by me, not retrieved.
 > Re-check the consequence half when this gets written.
+> **2026-09-03 (Section 4.2, reclaim):** Proven live. Predicted that
+> `agent wait` after a prompt "waits for that agent to be done, takes as long
+> as w1:p7 takes" -- **wrong**, and the good kind of wrong: `time` measured
+> **0.005s** while the agent was still counting to 30. The wait matched the
+> pre-prompt `idle`. Then, asked what the reviewer receives: "reviewer gets
+> handed nothing since it doesnt wait" -- correct, unprompted, and the first
+> time the consequence half came from the learner rather than from me.
+> Still `practicing`: the mechanism (what `wait` matches) was mispredicted in
+> the same session the consequence was retrieved. Task 4.3 writes the fix.
 > **2026-09-03 (Section 4.1):** Predicted `idle` for the status field returned
 > by `agent prompt` itself, and it was `idle` -- the reply describes the state
 > observed at submission, before the prompt has had any effect. Prediction
@@ -120,8 +135,11 @@ data. Verified live 2026-09-02.
 ### json-response-shapes — `practicing`
 Success `{"id":…,"result":{"type":…}}`; error `{"id":…,"error":{"code","message"}}`.
 `pane split` → `result.pane.pane_id`; `agent get` → `result.agent.agent_status`;
-`agent read` → `result.read.text`. `agent wait` returns a *wait_matched event*,
-not an agent — re-read via `agent get` instead.
+`agent read` → `result.read.text`. ~~`agent wait` returns a *wait_matched event*, not an agent — re-read via
+`agent get` instead.~~ **Wrong on this install, corrected 2026-09-03:** a
+matched wait answers with `type: "agent_info"` carrying the full agent, so
+`result["agent"]["agent_status"]` is available directly. Found by running it,
+not by reading. Fifth correction to the original brief.
 Two layers: the transport envelope (`id` + `result`, or `id` + `error`) and the
 typed payload inside `result` (`type` names the kind, a sibling key holds the
 thing). `call()` returns the whole envelope, so reads start `response["result"]`.

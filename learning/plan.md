@@ -183,10 +183,18 @@ declare victory instantly against an empty diff.
 **Tasks:**
 - [x] 1. `prompt_agent()` — wrap `agent prompt <TARGET> <TEXT>` with no waiting
       at all, and watch the race happen live.
-- [ ] 2. Reclaim: [[submit-wait-race]] — prompt, then immediately `agent wait`,
+- [x] 2. Reclaim: [[submit-wait-race]] — prompt, then immediately `agent wait`,
       and predict what it matches before running it.
-- [ ] 3. The decision: herdr's `prompt --wait --until` versus the manual
+- [x] 3. The decision: herdr's `prompt --wait --until` versus the manual
       two-phase wait. Pick one, record why, and write `wait_for_agent()`.
+      > **Decided 2026-09-03: the manual two-phase wait (B).** herdr's
+      > `prompt --wait` is less code and closes the race server-side, but it
+      > blocks submission until that agent finishes -- which serialises a
+      > fan-out. Three writers would cost 3x wall-clock and the stage's list
+      > would be decorative. Submission must return immediately for
+      > spawn-all -> submit-all -> wait-all to mean anything.
+      > **Revisit if** the parallel stretch goal is ever dropped: with one
+      > agent per stage, A is the better choice.
 - [ ] 4. Timeouts everywhere, including the edge where a trivial task finishes
       before the first wait ever sees `working`.
 - [ ] 5. Deliverable: the writer takes a real task and the pipeline detects

@@ -56,6 +56,11 @@ wraps `agent start <NAME> --kind <KIND> --pane <ID>` and returns
 — wraps `agent prompt <TARGET> <TEXT>`, submits without waiting, returns
 `response["result"]["agent"]`. → [[submit-wait-race]]
 
+**Written so far (Section 4.3, learner-authored):** `wait_for_agent(target,
+until, timeout_ms=300000)` — wraps `agent wait <TARGET> --until <STATUS>
+--timeout <MS>`, converting the int timeout with `str()` because argv is always
+text. Returns the matched result. → [[submit-wait-race]] [[timeouts]]
+
 **Section 2 complete (2026-09-02).** `run()` + `call()` + four exception types.
 Known gap: the exit-1 branch parses stderr outside any `try`. — wiring the exit codes to those types, and
 the exit-code handling that stops the `herdr wait` trap from silently passing.
