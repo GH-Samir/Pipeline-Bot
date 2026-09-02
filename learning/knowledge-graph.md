@@ -118,7 +118,7 @@ transcript.
 
 ## Git
 
-### git-diff-tracked-vs-untracked — `introduced`
+### git-diff-tracked-vs-untracked — `understood`
 `git diff` compares index against working tree. A brand-new **untracked** file
 appears in neither, so it shows nothing — regardless of how many commits exist.
 `git add -A` then `git diff --cached`.
@@ -126,25 +126,30 @@ appears in neither, so it shows nothing — regardless of how many commits exist
 > file in this zero-commit repo. Answered "nothing sinfe zero commits" — right
 > outcome, wrong mechanism. Conflated untracked-ness with absence of history.
 > Partial credit logged as partial.
+> **2026-09-02:** self-reported prior knowledge.
 
-### git-baseline-commit — `introduced`
+### git-baseline-commit — `understood`
 "What did the writer change?" is meaningless without a commit marking the state
 *before* it ran. `git diff` is a functional component of this pipeline, not a
 safety net.
 `depends-on:` [[git-diff-tracked-vs-untracked]]
+> **2026-09-02:** self-reported prior knowledge.
 
-### git-basics — `seed`
+### git-basics — `understood`
 `init`, `add`, `commit`, `log`, `status`. Repo is initialised; **zero commits.**
+> **2026-09-02:** self-reported prior knowledge.
 
-### gitignore-purpose — `seed`
+### gitignore-purpose — `understood`
 `depends-on:` [[generated-vs-authored]]
+> **2026-09-02:** self-reported prior knowledge.
 
-### generated-vs-authored — `seed`
+### generated-vs-authored — `understood`
 Which files you write and which a machine regenerates.
 
 ---
 
 ## Python
+> **2026-09-02:** self-reported prior knowledge.
 
 ### custom-exceptions — `seed`
 Distinct exception types are how the exit contract becomes usable by callers.
@@ -188,8 +193,9 @@ waits on other processes ~100% of the time gains nothing from a fast language.
 
 ## Engineering practices (absent — curriculum too)
 
-### version-control-discipline — `seed`
+### version-control-discipline — `understood`
 Committing as you go. **Zero commits exist.** Section 1.
+> **2026-09-02:** self-reported prior knowledge.
 
 ### testing-absent — `seed`
 No tests, no runner. Acute here: the signature failure is a green run that did

@@ -69,16 +69,20 @@ nothing, then `git add -A` and watch it appear. Break the belief that "zero
 commits" was the cause.
 
 **Tasks:**
-- [ ] 1. The baseline commit — the three places a file can live in git, and
+- [x] 1. The baseline commit — the three places a file can live in git, and
       getting `.gitignore` + `learning/` into real history.
-- [ ] 2. Reclaim: prove `git diff` ignores untracked files, with a prediction
-      first. Kill the "zero commits was the cause" belief.
-- [ ] 3. Prove `.gitignore` actually works — create `work/`, watch git refuse
-      to see it.
+- [~] 2. ~~Reclaim: prove `git diff` ignores untracked files.~~ **Dropped
+      2026-09-02** — git self-reported as prior knowledge, so this reclaim task
+      has no target. Section 2's reclaim (the exit contract) is unaffected.
+- [~] 3. ~~Prove `.gitignore` actually works.~~ **Dropped 2026-09-02** — same
+      reason.
 - [ ] 4. Write the preflight guard in `pipeline.py`: read `HERDR_ENV`, refuse
       with a nonzero exit code. First real code of the project.
 - [ ] 5. Run it outside Herdr and watch it refuse; run it with the variable set
       and watch it pass. Commit.
+- [x] 6. Push to GitHub — `gh auth login`, then create the repo and push.
+      *Receipt: asked for during Section 1. Placed last because `git push`
+      sends commits, so it depends on tasks 1 and 5 existing first.*
 
 ---
 
