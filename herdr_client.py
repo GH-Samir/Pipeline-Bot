@@ -104,3 +104,14 @@ def start_agent(name, pane_id, kind="claude"):
     response = call("agent", "start", name, "--kind", kind, "--pane", pane_id)
 
     return response["result"]["agent"]
+
+
+def prompt_agent(target, text):
+    """Submit a prompt to a running agent and return its agent object.
+
+    Submits and returns immediately -- no waiting of any kind. `target` is a
+    pane id or an agent name; `text` is the whole prompt as one argument.
+    """
+
+    response = call("agent", "prompt", target, text)
+    return response["result"]["agent"]

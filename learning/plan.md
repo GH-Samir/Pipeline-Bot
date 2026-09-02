@@ -173,6 +173,25 @@ detects when it is genuinely finished — not 1ms after submitting.
 verbally. Delete the `--until working` wait, run it, and watch the pipeline
 declare victory instantly against an empty diff.
 
+> **Finding 2026-09-03, read live from `agent prompt --help`:** herdr's own
+> `--wait` already requires an observed state change within 5000ms before
+> matching a settled state, returning `agent_prompt_stalled` if none comes. So
+> the two-phase wait `project.md` prescribes is **one** answer to the race, not
+> the only one. Task 3 makes that an explicit decision instead of an inherited
+> assumption.
+
+**Tasks:**
+- [x] 1. `prompt_agent()` — wrap `agent prompt <TARGET> <TEXT>` with no waiting
+      at all, and watch the race happen live.
+- [ ] 2. Reclaim: [[submit-wait-race]] — prompt, then immediately `agent wait`,
+      and predict what it matches before running it.
+- [ ] 3. The decision: herdr's `prompt --wait --until` versus the manual
+      two-phase wait. Pick one, record why, and write `wait_for_agent()`.
+- [ ] 4. Timeouts everywhere, including the edge where a trivial task finishes
+      before the first wait ever sees `working`.
+- [ ] 5. Deliverable: the writer takes a real task and the pipeline detects
+      genuine completion. Commit.
+
 ---
 
 ### Section 5 — Handoff: baseline, diff, capture

@@ -41,6 +41,11 @@ matches the pre-prompt settled state. Fix is to wait for the transition into
 > Answered "idle" — correct state identification. The consequence chain (empty
 > diff → reviewer fed nothing → false PASS) was supplied by me, not retrieved.
 > Re-check the consequence half when this gets written.
+> **2026-09-03 (Section 4.1):** Predicted `idle` for the status field returned
+> by `agent prompt` itself, and it was `idle` -- the reply describes the state
+> observed at submission, before the prompt has had any effect. Prediction
+> correct; the consequence (trusting that field means being right only by
+> accident) still supplied by me. Task 4.2 is the reclaim.
 
 ### stale-artifact-reporting — `practicing`
 A file on disk is not evidence that *this run* produced it. Two defences:

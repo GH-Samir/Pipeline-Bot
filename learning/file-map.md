@@ -52,6 +52,10 @@ wraps `agent start <NAME> --kind <KIND> --pane <ID>` and returns
 `response["result"]["agent"]`, the AgentInfo object (`agent_status`, `pane_id`,
 `interactive_ready`, …). → [[pane-agent-primitives]] [[agent-kind-choice]]
 
+**Written so far (Section 4.1, learner-authored):** `prompt_agent(target, text)`
+— wraps `agent prompt <TARGET> <TEXT>`, submits without waiting, returns
+`response["result"]["agent"]`. → [[submit-wait-race]]
+
 **Section 2 complete (2026-09-02).** `run()` + `call()` + four exception types.
 Known gap: the exit-1 branch parses stderr outside any `try`. — wiring the exit codes to those types, and
 the exit-code handling that stops the `herdr wait` trap from silently passing.
