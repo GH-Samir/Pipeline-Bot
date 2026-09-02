@@ -103,15 +103,33 @@ help. `subprocess.run(..., check=True)` sails past it and returns help text as
 data. Verified live 2026-09-02.
 `depends-on:` [[subprocess-exit-contract]]
 
-### json-response-shapes — `seed`
+### json-response-shapes — `introduced`
 Success `{"id":…,"result":{"type":…}}`; error `{"id":…,"error":{"code","message"}}`.
 `pane split` → `result.pane.pane_id`; `agent get` → `result.agent.agent_status`;
 `agent read` → `result.read.text`. `agent wait` returns a *wait_matched event*,
 not an agent — re-read via `agent get` instead.
+Two layers: the transport envelope (`id` + `result`, or `id` + `error`) and the
+typed payload inside `result` (`type` names the kind, a sibling key holds the
+thing). `call()` returns the whole envelope, so reads start `response["result"]`.
+> **2026-09-02 (Section 3.1):** Ran `pane split` by hand and read the real
+> reply. The key chain took three attempts: `["type"]["paneid"]`, then
+> `["pane_info"]["PANE_ID"]`, then correct. Both misses were the same root
+> confusion -- indexing with a *value* (`pane_info`) instead of a *key*
+> (`pane`), plus exact-spelling drift. Landed only after being handed the
+> literal key list at each level. Task 3.2 (the reclaim) is where this gets
+> probed for real.
 
-### pane-agent-primitives — `seed`
+### pane-agent-primitives — `introduced`
 `pane split` then `agent start` — a pane must already exist at a shell prompt;
 `agent start` never creates layout.
+> **2026-09-02 (Section 3.1):** Split a pane from the CLI and then from Python,
+> and saw the empty shell prompt that `agent start` will later take over.
+> `split_pane()` is the only function in the wrapper that creates layout.
+
+### default-parameter-values — `introduced`
+`def split_pane(direction="right")` — a parameter with a fallback, so callers
+who don't care can omit it. Agent-written in the signature, explained at the
+time.
 
 ### herdr-protocol-version — `introduced`
 Protocol 20 on herdr 0.8.2. Verified live, twice. The brief's "16 → 17" was wrong.

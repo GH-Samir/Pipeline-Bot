@@ -42,6 +42,11 @@ in `call()` is wrapped in `try`/`except json.JSONDecodeError` so the
 `herdr wait --help` trap raises a named error instead of returning help text as
 data. → [[herdr-wait-trap]] [[try-except]]
 
+**Written so far (Section 3.1):** `split_pane(direction="right")` — wraps
+`pane split --current --direction <dir>` and returns
+`response["result"]["pane"]["pane_id"]`. The only layout-creating call in the
+wrapper. → [[pane-agent-primitives]] [[json-response-shapes]]
+
 **Section 2 complete (2026-09-02).** `run()` + `call()` + four exception types.
 Known gap: the exit-1 branch parses stderr outside any `try`. — wiring the exit codes to those types, and
 the exit-code handling that stops the `herdr wait` trap from silently passing.

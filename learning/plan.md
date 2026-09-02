@@ -137,6 +137,18 @@ live Claude Code agent in it. You watch it appear.
 `result.agent.agent_status`, `result.read.text`. Break it by reading
 `result.text` instead of `result.read.text` and predict the failure.
 
+**Tasks:**
+- [x] 1. `split_pane()` — wrap `pane split --current --direction right` and
+      return the new pane id. The first call that succeeds: exit 0, real JSON,
+      and a visible second pane. Must be run from inside a Herdr session.
+- [ ] 2. Reclaim: [[json-response-shapes]] — read the real response, then break
+      it on purpose (`result["pane_id"]` instead of `result["pane"]["pane_id"]`)
+      and predict the failure before running it.
+- [ ] 3. `start_agent()` — wrap `agent start --pane <id> --kind claude`, and
+      revisit the inherited `--kind claude` decision now that it is being used.
+- [ ] 4. Deliverable: one run of `pipeline.py` splits a pane and a live Claude
+      Code agent appears in it. Commit.
+
 ---
 
 ### Section 4 — The WRITER stage and a wait that actually works
