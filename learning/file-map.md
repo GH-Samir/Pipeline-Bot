@@ -61,6 +61,11 @@ until, timeout_ms=300000)` — wraps `agent wait <TARGET> --until <STATUS>
 --timeout <MS>`, converting the int timeout with `str()` because argv is always
 text. Returns the matched result. → [[submit-wait-race]] [[timeouts]]
 
+**Written so far (Section 4.4):** `HerdrTimeout(HerdrWorldError)` plus the
+`code == "timeout"` branch in `call()` (learner-authored), and
+`wait_until_settled(target, timeout_ms=300000)` — phase one swallows a timeout,
+phase two does not. → [[timeouts]] [[submit-wait-race]]
+
 **Section 2 complete (2026-09-02).** `run()` + `call()` + four exception types.
 Known gap: the exit-1 branch parses stderr outside any `try`. — wiring the exit codes to those types, and
 the exit-code handling that stops the `herdr wait` trap from silently passing.

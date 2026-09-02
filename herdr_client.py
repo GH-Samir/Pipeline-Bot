@@ -52,6 +52,9 @@ class HerdrOutputError(HerdrError):
     """Herdr passed with exit code 0 however returned something that wasn't JSON"""
 
 
+class HerdrTimeout(HerdrWorldError):
+    """Did not produce the state in time, try increasing timeout"""
+
 def call(*args):
     """Run `herdr <args>` and return the parsed JSON result.
 
@@ -68,6 +71,8 @@ def call(*args):
     if completed.returncode == 1:
         payload = json.loads(completed.stderr)
         error = payload["error"]
+        if error['code'] == "timeout":
+            raise HerdrTimeout(f"{error['code']}: {error['message']}")
         raise HerdrWorldError(f"{error['code']}: {error['message']}")
 
     # Exit 0 is not proof of anything -- `herdr wait --help` exits 0 with help
@@ -129,3 +134,22 @@ def wait_for_agent(target, until, timeout_ms=300000):
     response = call("agent", "wait", target, "--until", until, "--timeout", str(timeout_ms))
 
     return response["result"]
+
+
+def wait_until_settled(target, timeout_ms=300000):
+    """The two-phase wait: confirm it started, then wait for it to finish.
+
+    Phase one exists only to defeat the submit/wait race -- without it, the
+    settle wait matches the state the agent was in before the prompt.
+    """
+
+    try:
+        wait_for_agent(target, "working", timeout_ms=5000)
+    except HerdrTimeout:
+        # Not a failure: the agent may have finished before we looked. Phase
+        # two settles it either way.
+        pass
+
+    return wait_for_agent(target, "idle", timeout_ms)
+
+

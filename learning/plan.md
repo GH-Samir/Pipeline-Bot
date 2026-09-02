@@ -195,7 +195,7 @@ declare victory instantly against an empty diff.
       > spawn-all -> submit-all -> wait-all to mean anything.
       > **Revisit if** the parallel stretch goal is ever dropped: with one
       > agent per stage, A is the better choice.
-- [ ] 4. Timeouts everywhere, including the edge where a trivial task finishes
+- [x] 4. Timeouts everywhere, including the edge where a trivial task finishes
       before the first wait ever sees `working`.
 - [ ] 5. Deliverable: the writer takes a real task and the pipeline detects
       genuine completion. Commit.

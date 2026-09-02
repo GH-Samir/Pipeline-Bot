@@ -319,10 +319,24 @@ line by line at the time.
 ### argv-and-cli-args — `seed`
 Taking the task string as an argument.
 
-### timeouts — `seed`
-Every wait needs one. Covers the edge where an agent finishes before
-`--until working` ever matches.
-`depends-on:` [[submit-wait-race]]
+### timeouts — `introduced`
+Every wait needs one, and the *value* encodes what the wait means. Phase one
+(`--until working`) gets ~5000ms and a swallowed timeout: not seeing the start
+is survivable. Phase two (settle) gets the full budget and lets its timeout
+propagate: an agent that never finished is exactly the failure the pipeline
+exists to report. herdr reports these as exit 1 with `code: "timeout"`.
+`depends-on:` [[submit-wait-race]] [[custom-exceptions]]
+> **2026-09-03 (Section 4.4):** Wrote `HerdrTimeout` and the `error["code"] ==
+> "timeout"` branch in `call()`. Two design answers were wrong and both are
+> worth re-probing: chose `HerdrError` as the parent (corrected with the retry
+> argument -- a narrower `except HerdrWorldError` would miss the most
+> retryable failure there is), and proposed `0` as phase one's timeout, which
+> would expire before any agent could start. Then, writing phase two, copied
+> phase one's `try`/`except HerdrTimeout` -- which would have swallowed the
+> real failure and recreated the false PASS. Corrected after the two phases'
+> meanings were separated out loud. Phase one was written by me at the
+> learner's request; phase two's line is theirs.
+> Measured: 0.005s (no wait) -> 2.058s (two-phase), settling on `idle`.
 
 ### module-imports — `practicing`
 Why `pipeline.py` importing `herdr_client` keeps subprocess calls in one file:
