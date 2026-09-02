@@ -107,7 +107,7 @@ get returned as if it were data.
       output as text and deliberately *not* raising on a nonzero exit.
 - [x] 2. The exception types — a base plus one per failure kind, so callers can
       tell "the world said no" from "your source has a typo".
-- [ ] 3. Wire the exit contract in: 0 parses JSON, 1 parses the JSON `error`
+- [x] 3. Wire the exit contract in: 0 parses JSON, 1 parses the JSON `error`
       object, 2 is plain text and must never reach `json.loads`.
 - [ ] 4. Reclaim + break on purpose: write the `herdr wait` trap, watch
       `check=True` sail past exit 0 and hand back help text as if it were data.

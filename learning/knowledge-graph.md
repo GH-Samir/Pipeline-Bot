@@ -90,6 +90,12 @@ JSON**). Exit 1 is sometimes retryable; exit 2 never is.
 > actual was `1`. Same distinction they had just argued correctly, inverted when
 > the failure came from herdr rather than their own script. Not downgraded --
 > the earlier evidence stands -- but the miss is worth a revisit in task 3.
+> **2026-09-02 (Section 2.3):** Revisit done, and it settled. Asked to classify
+> the misspelled `--untill` concretely: "bug" -- correct, unprompted. Then
+> predicted `call("pane", "list")` with no server: "exit code 1, herdr world
+> eroor" -- correct, and the inversion from task 2.1 did not recur. Held at
+> `practicing` only because the ceiling rule forbids `understood` on a concept
+> introduced the same day; this is the strongest evidence in the graph for it.
 
 ### herdr-wait-trap — `introduced`
 `herdr wait` is not a command, but `herdr wait --help` **exits 0** printing root
@@ -182,6 +188,12 @@ Classes are `CapWords`.
 > misconceptions logged under [[custom-exceptions]]. Corrected the stray
 > `except` themselves between saves; the parent name and the third class were
 > supplied by me.
+> **2026-09-02 (Section 2.3):** Asked which of the three names means "the typo
+> is in our source" and answered "1" -- a digit, not a name. Exit codes and
+> exception names were the same vocabulary in their head. Taught the split
+> explicitly (numbers are herdr's language, names are ours; `call()` is the
+> translator), after which the concrete classification came out right. This is
+> the mapping to re-probe first next session.
 
 ### subprocess-module — `introduced`
 `subprocess.run` takes an argv **list** (no shell, so no quoting or glob
@@ -208,9 +220,27 @@ depth (1000 here) and raises `RecursionError`.
 > predicted "infinite recursion" before it was run. Correct, and the guardrail
 > detail was new.
 
-### json-parsing-python — `seed`
-`json.loads`, and why it must not run on an exit-2 response.
-`depends-on:` [[json-response-shapes]]
+### json-parsing-python — `introduced`
+`json.loads` turns a JSON string into a Python dict. Handed something that is
+not JSON it raises `JSONDecodeError` -- a traceback that blames the parser and
+never mentions the misspelled flag that actually caused it. That misdirection is
+why the exit-2 guard is checked first.
+`depends-on:` [[json-response-shapes]] [[stdout-vs-stderr]]
+> **2026-09-02 (Section 2.3):** Predicted that plain text reaching `json.loads`
+> "would not even show that a bug has occured" -- the opposite of what happens.
+> Ran it themselves and read the `JSONDecodeError`. The correction landed: the
+> failure IS reported, it just names the wrong culprit. Wrote
+> `json.loads(completed.stdout)` in the exit-0 branch, with the call itself
+> scaffolded and only the stream left to choose -- so `introduced`, not more.
+
+### f-strings-and-dict-indexing — `introduced`
+`payload["error"]["code"]` walks a nested dict; `f"{x}: {y}"` builds a string
+with values substituted in. Both agent-written in the exit-1 branch, explained
+line by line at the time.
+> **2026-09-02 (Section 2.3):** Copied the f-string into the `raise` blank as if
+> it were the exception itself -- `raise f"{error['2']: ..."`. The misread was
+> structural: an f-string is a *message*, and `raise Name(message)` needs a name
+> in front of the parentheses. Worth re-checking when a string is next built.
 
 ### argv-and-cli-args — `seed`
 Taking the task string as an argument.

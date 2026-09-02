@@ -30,7 +30,13 @@ at its default `False`. Returns the `CompletedProcess` untouched; raises nothing
 never raised) with `HerdrWorldError` (exit 1) and `HerdrUsageError` (exit 2) as
 siblings under it. Definitions only; nothing raises them yet.
 
-**Still comes due: Sections 2.3-2.5** — wiring the exit codes to those types, and
+**Written so far (Section 2.3):** `call(*args)` — the exit contract in one
+place. Exit 2 raises `HerdrUsageError` from the plain-text stderr **first**, so
+it never reaches the parser; exit 1 parses the JSON `error` object off stderr
+into `HerdrWorldError`; exit 0 returns `json.loads(completed.stdout)`. Callers
+get a dict or an exception, never a return code.
+
+**Still comes due: Sections 2.4-2.5** — wiring the exit codes to those types, and
 the exit-code handling that stops the `herdr wait` trap from silently passing.
 
 > Naming note: `project.md` calls this file `herdr.py`; on disk it is
