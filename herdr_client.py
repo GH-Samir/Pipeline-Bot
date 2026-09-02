@@ -4,6 +4,7 @@ Nothing in this file knows what a pipeline is. Swapping the CLI for the raw
 socket API should change this file and nothing above it.
 """
 
+import json
 import subprocess
 
 
@@ -45,3 +46,25 @@ def run(*args):
     completed = subprocess.run(argv, capture_output=True, text=True)
 
     return completed
+
+
+def call(*args):
+    """Run `herdr <args>` and return the parsed JSON result.
+
+    The exit contract, enforced in one place: success gives you a dict,
+    failure gives you an exception with a name that says which kind.
+    """
+
+    completed = run(*args)
+
+    # Checked first: exit 2's plain text must never reach json.loads.
+    if completed.returncode == 2:
+        raise HerdrUsageError(completed.stderr.strip())
+
+    if completed.returncode == 1:
+        payload = json.loads(completed.stderr)
+        error = payload["error"]
+        raise HerdrWorldError(f"{error['code']}: {error['message']}")
+
+    # Exit 0: JSON on stdout.
+    return json.loads(completed.stdout)
