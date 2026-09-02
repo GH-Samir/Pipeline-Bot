@@ -26,8 +26,12 @@ plumbing they all sit on. Nothing in here knows what a "pipeline" is.
 and calls `subprocess.run` with `capture_output=True, text=True` and `check` left
 at its default `False`. Returns the `CompletedProcess` untouched; raises nothing.
 
-**Still comes due: Sections 2.2-2.5** — the exception types and the exit-code
-handling that stops the `herdr wait` trap from silently passing.
+**Written so far (Section 2.2):** the exception hierarchy — `HerdrError` (base,
+never raised) with `HerdrWorldError` (exit 1) and `HerdrUsageError` (exit 2) as
+siblings under it. Definitions only; nothing raises them yet.
+
+**Still comes due: Sections 2.3-2.5** — wiring the exit codes to those types, and
+the exit-code handling that stops the `herdr wait` trap from silently passing.
 
 > Naming note: `project.md` calls this file `herdr.py`; on disk it is
 > `herdr_client.py`. `herdr_client.py` is the better name — `herdr.py` would

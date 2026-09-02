@@ -105,7 +105,7 @@ get returned as if it were data.
 **Tasks:**
 - [x] 1. `run()` — build an argv list and call `subprocess.run`, capturing
       output as text and deliberately *not* raising on a nonzero exit.
-- [ ] 2. The exception types — a base plus one per failure kind, so callers can
+- [x] 2. The exception types — a base plus one per failure kind, so callers can
       tell "the world said no" from "your source has a typo".
 - [ ] 3. Wire the exit contract in: 0 parses JSON, 1 parses the JSON `error`
       object, 2 is plain text and must never reach `json.loads`.

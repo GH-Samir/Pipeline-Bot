@@ -159,9 +159,29 @@ Which files you write and which a machine regenerates.
 ## Python
 > **2026-09-02:** self-reported prior knowledge.
 
-### custom-exceptions — `seed`
+### custom-exceptions — `introduced`
 Distinct exception types are how the exit contract becomes usable by callers.
-`depends-on:` [[subprocess-exit-contract]]
+A base class nobody raises (`HerdrError`) plus one sibling per failure kind, so
+`except HerdrWorldError:` means "retry" and `except HerdrError:` means "either".
+`depends-on:` [[subprocess-exit-contract]] [[class-definition]]
+> **2026-09-02 (Section 2.2):** Hierarchy taught, then written by me at the
+> learner's request ("do this for me i dont have time"). Trade named out loud.
+> Two real misconceptions surfaced first and are worth re-probing in task 3:
+> wrote `class HerdrWorldError(except HerdrUsageError):` (mixing the moment a
+> class is *defined* with the moment it is *caught*), and `return exit(2)` in a
+> class body (expecting the class itself to perform the exit). Asked what the
+> parent should be, answered "i do not know" -- taught with the tree diagram.
+> Zero learner code in this concept. Stays `introduced` on purpose.
+
+### class-definition — `introduced`
+`class Name(Parent):` creates a name, once, when Python reads the file. The
+parentheses answer "what is this a kind of?", not "when do I catch it?". A body
+of nothing but a docstring is a complete class -- these three run zero lines.
+Classes are `CapWords`.
+> **2026-09-02 (Section 2.2):** First class the learner has met. See the two
+> misconceptions logged under [[custom-exceptions]]. Corrected the stray
+> `except` themselves between saves; the parent name and the third class were
+> supplied by me.
 
 ### subprocess-module — `introduced`
 `subprocess.run` takes an argv **list** (no shell, so no quoting or glob
