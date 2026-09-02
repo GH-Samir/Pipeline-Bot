@@ -91,3 +91,16 @@ def split_pane(direction="right"):
 
     # envelope -> payload -> the pane itself.
     return response["result"]["pane"]["pane_id"]
+
+
+def start_agent(name, pane_id, kind="claude"):
+    """Start an interactive agent in an existing pane, and return its info.
+
+    The pane must already exist and be sitting at a shell prompt -- this call
+    never creates layout. `name` is ours to choose ("writer", "reviewer");
+    `kind` is which program herdr launches.
+    """
+
+    response = call("agent", "start", name, "--kind", kind, "--pane", pane_id)
+
+    return response["result"]["agent"]
