@@ -78,3 +78,16 @@ def call(*args):
         raise HerdrOutputError(
             f"herdr exited 0 but did not return JSON: {completed.stdout[:60]!r}"
         )
+
+
+def split_pane(direction="right"):
+    """Split the current pane and return the new pane's id.
+
+    The only call in this wrapper that creates layout. `direction` defaults to
+    "right" so callers that don't care don't have to say.
+    """
+
+    response = call("pane", "split", "--current", "--direction", direction)
+
+    # envelope -> payload -> the pane itself.
+    return response["result"]["pane"]["pane_id"]
