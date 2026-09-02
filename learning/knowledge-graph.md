@@ -97,7 +97,7 @@ JSON**). Exit 1 is sometimes retryable; exit 2 never is.
 > `practicing` only because the ceiling rule forbids `understood` on a concept
 > introduced the same day; this is the strongest evidence in the graph for it.
 
-### herdr-wait-trap — `introduced`
+### herdr-wait-trap — `practicing`
 `herdr wait` is not a command, but `herdr wait --help` **exits 0** printing root
 help. `subprocess.run(..., check=True)` sails past it and returns help text as
 data. Verified live 2026-09-02.
@@ -165,7 +165,7 @@ Which files you write and which a machine regenerates.
 ## Python
 > **2026-09-02:** self-reported prior knowledge.
 
-### custom-exceptions — `introduced`
+### custom-exceptions — `practicing`
 Distinct exception types are how the exit contract becomes usable by callers.
 A base class nobody raises (`HerdrError`) plus one sibling per failure kind, so
 `except HerdrWorldError:` means "retry" and `except HerdrError:` means "either".
@@ -178,8 +178,12 @@ A base class nobody raises (`HerdrError`) plus one sibling per failure kind, so
 > class body (expecting the class itself to perform the exit). Asked what the
 > parent should be, answered "i do not know" -- taught with the tree diagram.
 > Zero learner code in this concept. Stays `introduced` on purpose.
+> **2026-09-02 (Section 2.4):** Wrote the fourth type unaided --
+> `class HerdrOutputError(HerdrError):` with a docstring, and spelled it
+> identically in the `raise` two branches down. Exactly the work handed off in
+> 2.2, done alone this time. Moves to `practicing`; the handoff is paid back.
 
-### class-definition — `introduced`
+### class-definition — `practicing`
 `class Name(Parent):` creates a name, once, when Python reads the file. The
 parentheses answer "what is this a kind of?", not "when do I catch it?". A body
 of nothing but a docstring is a complete class -- these three run zero lines.
@@ -232,6 +236,20 @@ why the exit-2 guard is checked first.
 > failure IS reported, it just names the wrong culprit. Wrote
 > `json.loads(completed.stdout)` in the exit-0 branch, with the call itself
 > scaffolded and only the stream left to choose -- so `introduced`, not more.
+
+### try-except — `understood`
+`try:` attempts the risky lines; `except SomeError:` runs instead if that
+specific failure happens. Scope is the block -- lines outside `try` are not
+covered, which is why guarding the exit-0 parse leaves exit 1 and 2 untouched.
+> **2026-09-02:** self-reported prior knowledge ("i know how try except works
+> from another projects"). Not taught from here.
+> **2026-09-02 (Section 2.4):** Structure agent-written; filled the `raise`
+> inside the `except` and correctly predicted the scoping -- consistent with
+> the self-report.
+> **Known gap, deliberately left:** the exit-1 branch calls
+> `json.loads(completed.stderr)` outside any `try`. Non-JSON on a failing exit 1
+> still crashes with a raw `JSONDecodeError`. Named out loud 2026-09-02; fix
+> when it bites, or in Section 7 with the rest of the failure handling.
 
 ### f-strings-and-dict-indexing — `introduced`
 `payload["error"]["code"]` walks a nested dict; `f"{x}: {y}"` builds a string

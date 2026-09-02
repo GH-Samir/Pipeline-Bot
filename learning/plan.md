@@ -109,7 +109,7 @@ get returned as if it were data.
       tell "the world said no" from "your source has a typo".
 - [x] 3. Wire the exit contract in: 0 parses JSON, 1 parses the JSON `error`
       object, 2 is plain text and must never reach `json.loads`.
-- [ ] 4. Reclaim + break on purpose: write the `herdr wait` trap, watch
+- [x] 4. Reclaim + break on purpose: write the `herdr wait` trap, watch
       `check=True` sail past exit 0 and hand back help text as if it were data.
 - [ ] 5. Deliverable: `herdr pane list` with no server running raises a clean,
       correctly-typed exception. Commit.

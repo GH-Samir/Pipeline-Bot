@@ -36,7 +36,13 @@ it never reaches the parser; exit 1 parses the JSON `error` object off stderr
 into `HerdrWorldError`; exit 0 returns `json.loads(completed.stdout)`. Callers
 get a dict or an exception, never a return code.
 
-**Still comes due: Sections 2.4-2.5** — wiring the exit codes to those types, and
+**Written so far (Section 2.4, learner-authored):** `HerdrOutputError` — the
+fourth failure kind, for exit 0 with output that is not JSON. The exit-0 parse
+in `call()` is wrapped in `try`/`except json.JSONDecodeError` so the
+`herdr wait --help` trap raises a named error instead of returning help text as
+data. → [[herdr-wait-trap]] [[try-except]]
+
+**Still comes due: Section 2.5** — wiring the exit codes to those types, and
 the exit-code handling that stops the `herdr wait` trap from silently passing.
 
 > Naming note: `project.md` calls this file `herdr.py`; on disk it is
