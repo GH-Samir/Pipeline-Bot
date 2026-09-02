@@ -77,7 +77,12 @@ Plus the `if __name__ == "__main__":` entry point.
 `try`/`except herdr_client.HerdrError` around the first real call that prints one
 clean line to stderr and exits 1. → [[module-imports]] [[custom-exceptions]]
 
-**Still comes due: Sections 3–6**, one stage at a time.
+**Written so far (Section 3.4, learner-authored):** the entry point now splits a
+pane, starts a `writer` agent in it, and prints the pane id and
+`agent["agent_status"]` — all inside the one `try` that maps any `HerdrError` to
+one stderr line and exit 1. → [[pane-agent-primitives]] [[agent-lifecycle-states]]
+
+**Still comes due: Sections 4–6**, one stage at a time.
 
 ### `.gitignore` — `parked` (3 lines)
 Keeps machine-made and per-run files out of version control:

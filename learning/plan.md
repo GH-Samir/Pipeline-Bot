@@ -146,8 +146,15 @@ live Claude Code agent in it. You watch it appear.
       and predict the failure before running it.
 - [x] 3. `start_agent()` — wrap `agent start --pane <id> --kind claude`, and
       revisit the inherited `--kind claude` decision now that it is being used.
-- [ ] 4. Deliverable: one run of `pipeline.py` splits a pane and a live Claude
+- [x] 4. Deliverable: one run of `pipeline.py` splits a pane and a live Claude
       Code agent appears in it. Commit.
+
+---
+
+### Section 3 — COMPLETE (2026-09-03)
+`pipeline.py` splits a pane and boots a live Claude Code agent into it in one
+run. Known gap carried forward: nothing records the pane id for cleanup, and
+nothing waits for the agent — both are Sections 4 and 7.
 
 ---
 

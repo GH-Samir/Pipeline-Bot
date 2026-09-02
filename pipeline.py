@@ -21,10 +21,11 @@ if __name__ == "__main__":
     print("preflight ok: inside Herdr")
 
     try:
-        panes = herdr_client.call("pane", "list")
+        pane_id = herdr_client.split_pane()
+        agent = herdr_client.start_agent("writer", pane_id)
     # The base, so every failure kind lands here -- including ones added later.
     except herdr_client.HerdrError as exc:
         print(f"pipeline failed: {exc}", file=sys.stderr)
         sys.exit(1)
 
-    print(panes)
+    print(f"writer running in {pane_id}, status: {agent["agent_status"]}")

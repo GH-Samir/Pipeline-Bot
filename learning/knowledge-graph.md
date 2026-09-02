@@ -56,13 +56,17 @@ clear outputs at startup, and check agent state before trusting any file.
 A stage takes a *list* of agents even when there is one, and runs three phases
 over it. Paying for the parallel stretch goal in advance.
 
-### agent-lifecycle-states — `introduced`
+### agent-lifecycle-states — `practicing`
 `idle` `working` `blocked` `done` `unknown`. `idle` requires the tab to have
 been *seen* in a focused UI, so background panes settle as `done` — hardcoding
 `--until idle` hangs forever. `blocked` is an approval dialog. `unknown` is not
 a synonym for finished. `agent wait` with no `--until` matches idle|done|blocked.
 > **2026-09-02:** Named `idle` correctly in the race probe. The seen-in-UI
 > mechanism and the `done` default were supplied by me.
+> **2026-09-03 (Section 3.4):** Predicted a freshly started agent would report
+> `idle` and it did -- from a focused Herdr UI, where that is the correct
+> answer. The environment dependence (background tab settles `done`) was named
+> by me afterwards. Re-probe in Section 4, where the wait is written.
 
 ### resource-cleanup — `practicing`
 Close only the panes we created; never tear down panes we merely found.
