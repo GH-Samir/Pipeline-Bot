@@ -74,14 +74,18 @@ Underpins the fan-out. Not yet discussed.
 
 ## The tool boundary (herdr)
 
-### subprocess-exit-contract — `introduced`
+### subprocess-exit-contract — `practicing`
 `0` success · `1` herdr ran and the world said no (JSON `error` object) ·
 `2` herdr never parsed the command — a bug in *your source* (**plain text, not
 JSON**). Exit 1 is sometimes retryable; exit 2 never is.
 > **2026-09-02:** Probed twice, including a concrete "what do you check first"
 > framing. Answered "code 2 instead of 1", then "i dont know". Restated the
 > premise without the reasoning. Fully taught by me; zero learner evidence.
-> **Highest-value reclaim target in this graph** — everything else sits on it.
+> **2026-09-02 (Section 1.4):** Asked which status fits "ran outside Herdr",
+> given herdr's 1-vs-2 split. Answered "1 since the code is working fine its
+> just run in the wrong place, the wrong world" — correct, in own words, applied
+> to a case never discussed. The gap from this morning is closing.
+> Capped at `practicing`: introduced and demonstrated the same day.
 
 ### herdr-wait-trap — `introduced`
 `herdr wait` is not a command, but `herdr wait --help` **exits 0** printing root
@@ -201,12 +205,49 @@ Committing as you go. **Zero commits exist.** Section 1.
 No tests, no runner. Acute here: the signature failure is a green run that did
 nothing.
 
-### preflight-env-guard — `introduced`
+### preflight-env-guard — `practicing`
 Fail at step 0 before side effects. `HERDR_ENV=1` checks "am I inside a Herdr
 pane" — a *different* question from `server_not_running`, and the one
 `pane split` actually needs.
 > **2026-09-02:** Asked where it fails without the guard. "i dont know."
-> Taught, with the live error captured. No learner evidence.
+> Taught, with the live error captured.
+> **2026-09-02 (Section 1.4):** Wrote the guard in `pipeline.py` themselves.
+> Verified against herdr's own documented check `test "${HERDR_ENV:-}" = 1`.
+> Correctly tests the *value* `"1"`, so `HERDR_ENV=0` is rejected too.
 
-### env-vars — `seed`
-Reading environment variables and why config arrives that way.
+### env-vars — `introduced`
+Reading environment variables and why config arrives that way. `os.environ` is
+a dict of the variables the process was handed; names are case-sensitive and
+conventionally UPPER_SNAKE. Herdr sets `HERDR_ENV`, `HERDR_PANE_ID`,
+`HERDR_TAB_ID`, `HERDR_WORKSPACE_ID`.
+> **2026-09-02 (Section 1.4):** Wrote `os.environ.get("0")` — looked up a
+> variable named `0` rather than `HERDR_ENV`, so the guard refused even inside
+> Herdr. Found it via a failed prediction, not by being told. Second attempt
+> `herdr-env` (lowercase, hyphen) needed the case/underscore convention
+> supplied. The lookup-by-name mechanic took two corrections — stays
+> `introduced`.
+
+### stdout-vs-stderr — `practicing`
+Two output streams: stdout carries the program's real output, stderr carries
+messages *about* the run. Keeps diagnostics out of a redirected PASS/FAIL summary.
+> **2026-09-02 (Section 1.4):** Used `file=sys.stderr` correctly, unprompted,
+> in the fill-in.
+
+### exit-status-produced — `practicing`
+The mirror of reading exit codes: `sys.exit(n)` sets what your process reports.
+0 = success, nonzero = failure.
+`depends-on:` [[subprocess-exit-contract]]
+> **2026-09-02 (Section 1.4):** Wrote `sys.exit(1)` and defended the choice of
+> 1 over 2 on the right grounds.
+
+### main-guard — `introduced`
+`if __name__ == "__main__":` — run this only when the file is executed directly,
+not when it is imported. Keeps `pipeline.py` from firing a preflight on import.
+> Agent-written in the skeleton and explained; not yet demonstrated.
+
+### shell-exit-status — `introduced`
+`$?` holds the exit status of the previous command **in that same shell**. A
+fresh shell reports 0 regardless of what happened elsewhere.
+> **2026-09-02 (Section 1.4):** Hit this live — `echo $?` in a separate `!`
+> command returned 0 while the script had exited 1. My dictation caused it;
+> corrected by joining the commands with `;`.

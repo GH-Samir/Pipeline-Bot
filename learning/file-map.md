@@ -30,7 +30,7 @@ handling in it is what stops the `herdr wait` trap from silently passing.
 > shadow nothing today, but a module named after the tool it wraps is a trap
 > waiting for the day something does `import herdr`.
 
-### `pipeline.py` — `parked` (empty, 0 bytes)
+### `pipeline.py` — `known` (preflight guard only)
 The orchestration itself: preflight, the three stages, the spawn/submit/wait
 structure, handoff, consolidate, cleanup, exit code. Imports `herdr_client`
 and contains no `subprocess` calls of its own.
@@ -38,7 +38,11 @@ and contains no `subprocess` calls of its own.
 → [[filesystem-handoff]] [[stale-artifact-reporting]] [[preflight-env-guard]]
 → [[argv-and-cli-args]] [[resource-cleanup]]
 
-**Comes due: Sections 3–6**, one stage at a time. Not written in one sitting.
+**Written so far (Section 1.4, learner-authored):** the `preflight()` guard —
+reads `HERDR_ENV`, refuses on anything but `"1"`, message to stderr, exits 1.
+Plus the `if __name__ == "__main__":` entry point.
+
+**Still comes due: Sections 3–6**, one stage at a time.
 
 ### `.gitignore` — `parked` (3 lines)
 Keeps machine-made and per-run files out of version control:

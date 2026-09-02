@@ -76,9 +76,9 @@ commits" was the cause.
       has no target. Section 2's reclaim (the exit contract) is unaffected.
 - [~] 3. ~~Prove `.gitignore` actually works.~~ **Dropped 2026-09-02** — same
       reason.
-- [ ] 4. Write the preflight guard in `pipeline.py`: read `HERDR_ENV`, refuse
+- [x] 4. Write the preflight guard in `pipeline.py`: read `HERDR_ENV`, refuse
       with a nonzero exit code. First real code of the project.
-- [ ] 5. Run it outside Herdr and watch it refuse; run it with the variable set
+- [x] 5. Run it outside Herdr and watch it refuse; run it with the variable set
       and watch it pass. Commit.
 - [x] 6. Push to GitHub — `gh auth login`, then create the repo and push.
       *Receipt: asked for during Section 1. Placed last because `git push`
