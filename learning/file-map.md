@@ -15,15 +15,19 @@ lesson already scheduled, not a gap to feel bad about.
 
 ## Root
 
-### `herdr_client.py` — `parked` (empty, 0 bytes)
+### `herdr_client.py` — `known` (the `run()` function only)
 The thin wrapper layer over the `herdr` CLI. One function per primitive
 (split, start, prompt, wait, read, close), plus the subprocess/JSON/exit-code
 plumbing they all sit on. Nothing in here knows what a "pipeline" is.
 → [[subprocess-exit-contract]] [[json-response-shapes]] [[custom-exceptions]]
 → [[pane-agent-primitives]] [[herdr-wait-trap]]
 
-**Comes due: Section 2.** This is the first file written, and the exit-code
-handling in it is what stops the `herdr wait` trap from silently passing.
+**Written so far (Section 2.1):** `run(*args)` — builds `["herdr"] + list(args)`
+and calls `subprocess.run` with `capture_output=True, text=True` and `check` left
+at its default `False`. Returns the `CompletedProcess` untouched; raises nothing.
+
+**Still comes due: Sections 2.2-2.5** — the exception types and the exit-code
+handling that stops the `herdr wait` trap from silently passing.
 
 > Naming note: `project.md` calls this file `herdr.py`; on disk it is
 > `herdr_client.py`. `herdr_client.py` is the better name — `herdr.py` would
@@ -56,13 +60,18 @@ author and files a machine regenerates.
 > Note: `work/` is ignored but does not exist yet. It is created at runtime and
 > **cleared at the start of every run** — see [[stale-artifact-reporting]].
 
+### `__pycache__/` — `generated`
+Python's cache of compiled bytecode, written automatically whenever a module is
+imported or compiled. Machine-made, never edited, always regenerable — deleting
+it costs nothing but a few milliseconds. Gitignored.
+
 ### `.git/` — `generated`
 Git's own database: every commit, branch, and object. Machine-made, never
 edited by hand. Deleting it destroys all history; it cannot be rebuilt from the
 working tree.
 
-**Current state: zero commits.** Nothing here is protected yet. This is the
-single most urgent fact in this map, and it is why Section 1 is Section 1.
+**Current state (2026-09-02):** four commits, pushed to
+`GH-Samir/Pipeline-Bot` (private). Section 1's deliverable, done.
 
 ---
 

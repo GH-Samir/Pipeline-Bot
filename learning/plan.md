@@ -102,6 +102,18 @@ probed twice and taught entirely by me. Then break it on purpose: write the
 `herdr wait` trap, watch `check=True` sail past exit 0, and watch root help text
 get returned as if it were data.
 
+**Tasks:**
+- [x] 1. `run()` — build an argv list and call `subprocess.run`, capturing
+      output as text and deliberately *not* raising on a nonzero exit.
+- [ ] 2. The exception types — a base plus one per failure kind, so callers can
+      tell "the world said no" from "your source has a typo".
+- [ ] 3. Wire the exit contract in: 0 parses JSON, 1 parses the JSON `error`
+      object, 2 is plain text and must never reach `json.loads`.
+- [ ] 4. Reclaim + break on purpose: write the `herdr wait` trap, watch
+      `check=True` sail past exit 0 and hand back help text as if it were data.
+- [ ] 5. Deliverable: `herdr pane list` with no server running raises a clean,
+      correctly-typed exception. Commit.
+
 ---
 
 ### Section 3 — The pane and agent primitives

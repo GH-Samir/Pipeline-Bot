@@ -86,6 +86,10 @@ JSON**). Exit 1 is sometimes retryable; exit 2 never is.
 > just run in the wrong place, the wrong world" — correct, in own words, applied
 > to a case never discussed. The gap from this morning is closing.
 > Capped at `practicing`: introduced and demonstrated the same day.
+> **2026-09-02 (Section 2.1):** Predicted `2` for `pane list` with no server;
+> actual was `1`. Same distinction they had just argued correctly, inverted when
+> the failure came from herdr rather than their own script. Not downgraded --
+> the earlier evidence stands -- but the miss is worth a revisit in task 3.
 
 ### herdr-wait-trap — `introduced`
 `herdr wait` is not a command, but `herdr wait --help` **exits 0** printing root
@@ -159,10 +163,30 @@ Which files you write and which a machine regenerates.
 Distinct exception types are how the exit contract becomes usable by callers.
 `depends-on:` [[subprocess-exit-contract]]
 
-### subprocess-module — `seed`
-`run`, `capture_output`, `returncode`, and why `check=True` is the wrong default
-here.
+### subprocess-module — `introduced`
+`subprocess.run` takes an argv **list** (no shell, so no quoting or glob
+surprises), `capture_output=True` returns output on the object, `text=True`
+decodes to str, and `check` is left at its default `False` on purpose.
 `depends-on:` [[herdr-wait-trap]]
+> **2026-09-02 (Section 2.1):** Wrote `argv = ["herdr"] + list(args)` correctly
+> and unaided. The `subprocess.run(...)` call took four attempts — first calling
+> their own `run` recursively, then wrapping it in `str()`, then two stray-paren
+> typos — and the final line was supplied by me after the third. Stays
+> `introduced`: the argv half is theirs, the call half is not yet.
+
+### completed-process-object — `introduced`
+`subprocess.run` returns a `CompletedProcess` carrying `.returncode`, `.stdout`
+and `.stderr`. Flattening it with `str()` throws the exit code away.
+> Explained 2026-09-02 after `str(run(argv))` appeared in the fill-in.
+> **Live finding (Section 2.1):** herdr writes *both* the JSON error object and
+> plain-text usage errors to `.stderr`; `.stdout` is empty on failure.
+
+### recursion-limit — `practicing`
+A function that calls itself with no base case does not hang — Python caps call
+depth (1000 here) and raises `RecursionError`.
+> **2026-09-02 (Section 2.1):** Wrote `str(run(argv))` inside `run`, then
+> predicted "infinite recursion" before it was run. Correct, and the guardrail
+> detail was new.
 
 ### json-parsing-python — `seed`
 `json.loads`, and why it must not run on an exit-2 response.
