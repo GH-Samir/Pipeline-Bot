@@ -48,6 +48,10 @@ def run(*args):
     return completed
 
 
+class HerdrOutputError(HerdrError):
+    """Herdr passed with exit code 0 however returned something that wasn't JSON"""
+
+
 def call(*args):
     """Run `herdr <args>` and return the parsed JSON result.
 
@@ -66,5 +70,11 @@ def call(*args):
         error = payload["error"]
         raise HerdrWorldError(f"{error['code']}: {error['message']}")
 
-    # Exit 0: JSON on stdout.
-    return json.loads(completed.stdout)
+    # Exit 0 is not proof of anything -- `herdr wait --help` exits 0 with help
+    # text. Trust the shape of the reply, not the status.
+    try:
+        return json.loads(completed.stdout)
+    except json.JSONDecodeError:
+        raise HerdrOutputError(
+            f"herdr exited 0 but did not return JSON: {completed.stdout[:60]!r}"
+        )
