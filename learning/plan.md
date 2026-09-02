@@ -111,8 +111,15 @@ get returned as if it were data.
       object, 2 is plain text and must never reach `json.loads`.
 - [x] 4. Reclaim + break on purpose: write the `herdr wait` trap, watch
       `check=True` sail past exit 0 and hand back help text as if it were data.
-- [ ] 5. Deliverable: `herdr pane list` with no server running raises a clean,
+- [x] 5. Deliverable: `herdr pane list` with no server running raises a clean,
       correctly-typed exception. Commit.
+
+---
+
+### Section 2 — COMPLETE (2026-09-02)
+All five tasks done. `pipeline.py` catches `HerdrError` and exits 1 with a
+one-line message; no traceback reaches the user. Known gap carried forward: the
+exit-1 branch's `json.loads(completed.stderr)` is not inside a `try`.
 
 ---
 

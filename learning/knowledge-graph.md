@@ -268,14 +268,19 @@ Every wait needs one. Covers the edge where an agent finishes before
 `--until working` ever matches.
 `depends-on:` [[submit-wait-race]]
 
-### module-imports — `introduced`
+### module-imports — `practicing`
 Why `pipeline.py` importing `herdr_client` keeps subprocess calls in one file:
 the transport can be swapped without `pipeline.py` noticing.
 > **2026-09-02 (Phase 3):** Asked what survives swapping the CLI for the raw
 > socket. Answered "would have to change to trust" — ambiguous; on a leading
 > re-ask ("did you mean transport?") answered "yeah". Recognition, not recall —
 > I supplied the word. Logged `introduced`, no credit claimed.
-> Revisit in Section 2, where the split is actually built.
+> **2026-09-02 (Section 2.5):** Wrote `import herdr_client` and used
+> `herdr_client.call(...)` and `herdr_client.HerdrError` through the module
+> prefix. One miss first: `herdr_client.herdr_env`, reaching for a local
+> variable from `preflight()` as if it lived in the imported module. Corrected
+> after being pointed at the four class names. The split is now real --
+> `pipeline.py` contains no `subprocess` call and never mentions exit codes.
 
 ### language-choice-tradeoffs — `introduced`
 Choosing a language by what the program spends its time doing. A program that
@@ -324,6 +329,10 @@ Two output streams: stdout carries the program's real output, stderr carries
 messages *about* the run. Keeps diagnostics out of a redirected PASS/FAIL summary.
 > **2026-09-02 (Section 1.4):** Used `file=sys.stderr` correctly, unprompted,
 > in the fill-in.
+> **2026-09-02 (Section 2.5):** Hit stream buffering live -- the stderr
+> diagnostic printed before the stdout status line, because stdout is block
+> -buffered when captured to a pipe and stderr never is. Explained by me, not
+> retrieved; worth a re-probe when output ordering next matters.
 
 ### exit-status-produced — `practicing`
 The mirror of reading exit codes: `sys.exit(n)` sets what your process reports.
@@ -331,6 +340,8 @@ The mirror of reading exit codes: `sys.exit(n)` sets what your process reports.
 `depends-on:` [[subprocess-exit-contract]]
 > **2026-09-02 (Section 1.4):** Wrote `sys.exit(1)` and defended the choice of
 > 1 over 2 on the right grounds.
+> **2026-09-02 (Section 2.5):** Filled `sys.exit(1)` in the failure handler
+> without hesitating or asking. Routine now.
 
 ### main-guard — `introduced`
 `if __name__ == "__main__":` — run this only when the file is executed directly,

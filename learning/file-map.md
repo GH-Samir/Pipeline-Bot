@@ -42,7 +42,8 @@ in `call()` is wrapped in `try`/`except json.JSONDecodeError` so the
 `herdr wait --help` trap raises a named error instead of returning help text as
 data. → [[herdr-wait-trap]] [[try-except]]
 
-**Still comes due: Section 2.5** — wiring the exit codes to those types, and
+**Section 2 complete (2026-09-02).** `run()` + `call()` + four exception types.
+Known gap: the exit-1 branch parses stderr outside any `try`. — wiring the exit codes to those types, and
 the exit-code handling that stops the `herdr wait` trap from silently passing.
 
 > Naming note: `project.md` calls this file `herdr.py`; on disk it is
@@ -61,6 +62,10 @@ and contains no `subprocess` calls of its own.
 **Written so far (Section 1.4, learner-authored):** the `preflight()` guard —
 reads `HERDR_ENV`, refuses on anything but `"1"`, message to stderr, exits 1.
 Plus the `if __name__ == "__main__":` entry point.
+
+**Written so far (Section 2.5, learner-authored):** `import herdr_client`, and a
+`try`/`except herdr_client.HerdrError` around the first real call that prints one
+clean line to stderr and exits 1. → [[module-imports]] [[custom-exceptions]]
 
 **Still comes due: Sections 3–6**, one stage at a time.
 
