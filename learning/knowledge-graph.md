@@ -217,7 +217,7 @@ the data, wrapped to the pane's current width. `git diff --cached` is the data.
 > `Pipelin`/`e-Bot`) was supplied by me.
 > Not tested: a much longer transcript. 300 lines is the whole claim.
 
-### filesystem-handoff — `introduced`
+### filesystem-handoff — `practicing`
 Herdr sequences the agents; the filesystem carries the data. Nothing parses a
 transcript.
 `depends-on:` [[alternate-screen-constraint]]
@@ -225,6 +225,11 @@ transcript.
 > "the transcript is unrecoverable" (false), but on "the transcript is a
 > rendering of the data, not the data". Half of that argument came from the
 > learner. The code that spends the decision is tasks 5.2-5.5.
+> **2026-09-03 (Section 5.4):** The handoff is now a Python value.
+> `capture_diff(extra_path)` stages, reads `git diff --cached` into a string,
+> and resets. `git_client.py` still knows nothing about `work/` -- the caller
+> passes the path, the same boundary the learner chose in 5.3. Moves to
+> `practicing`: the design reasoning (force-stage, then reset) was theirs.
 
 ---
 
@@ -239,6 +244,14 @@ appears in neither, so it shows nothing — regardless of how many commits exist
 > outcome, wrong mechanism. Conflated untracked-ness with absence of history.
 > Partial credit logged as partial.
 > **2026-09-02:** self-reported prior knowledge.
+> **2026-09-03 (Section 5.4):** First hard evidence behind the self-report, and
+> it was good. Given the `.gitignore`-vs-diff collision and three options, chose
+> force-staging and then answered the follow-up unprompted: "a, git reset after
+> so it doesnt get committed" -- naming the index side effect before writing a
+> line of it. Then predicted the post-capture state of the force-staged file
+> ("untracked, the reset unstaged it") correctly. The display nuance -- that an
+> unstaged ignored file vanishes from `git status` entirely -- was new to them
+> and read off the terminal.
 
 ### git-baseline-commit — `understood`
 > **2026-09-03 (Section 5.3):** Now a running function, not just a concept.
@@ -328,6 +341,15 @@ and `.stderr`. Flattening it with `str()` throws the exit code away.
 > Explained 2026-09-02 after `str(run(argv))` appeared in the fill-in.
 > **Live finding (Section 2.1):** herdr writes *both* the JSON error object and
 > plain-text usage errors to `.stderr`; `.stdout` is empty on failure.
+> **2026-09-03 (Section 5.4):** `run_git("git", "diff", "--cached")` and
+> `run_git("git", "reset")` -- the duplicated program name again, twice in one
+> save, after the identical slip in 5.3. Third instance of one pattern: writing
+> the command as it would be typed in a shell, forgetting the wrapper already
+> supplies the prefix (3.3 was the mirror image -- dropping the subcommand and
+> flags entirely). Asked to trace `argv` for `run_git("git", "reset")`:
+> "git git reset" -- correct immediately, so the model is there and the habit is
+> not. Notable: this time it raised `GitError` loudly rather than returning a
+> plausible empty string, because of the returncode check added in 5.3.
 > **2026-09-03 (Section 5.3):** The `check=False` half is not held. Wrapped
 > `subprocess.run` in `try`/`except` inside `run_git`, expecting a failed git
 > command to raise. Asked directly whether `subprocess.run` raises on a nonzero

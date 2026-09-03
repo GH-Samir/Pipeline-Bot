@@ -136,6 +136,13 @@ The argv line and the porcelain guard are learner-authored; **the returncode
 check in `run_git` was written by me** at the learner's request and is on the
 re-earn list.
 
+**Written so far (Section 5.4, learner-authored):** `capture_diff(extra_path)` —
+`git add -A`, then `git add -f <extra_path>` to override `.gitignore` for that
+one command, then `git diff --cached` captured into a **string**, then
+`git reset` so the index is left as it was found. The diff is returned, never
+printed: that is what makes the handoff a Python value instead of something to
+scrape. → [[filesystem-handoff]] [[git-diff-tracked-vs-untracked]]
+
 ### `.gitignore` — `parked` (3 lines)
 Keeps machine-made and per-run files out of version control:
 `__pycache__/`, `*.pyc` (Python bytecode), and `work/` (the pipeline's own

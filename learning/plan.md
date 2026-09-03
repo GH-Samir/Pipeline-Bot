@@ -279,7 +279,7 @@ constraint is not real, the handoff decision gets re-opened.
       > only that task 4 slides by one. Section 7 keeps [[resource-cleanup]] as
       > its reclaim; this line leaves it.
 
-- [ ] 4. Capture the change — `git add -A` then `git diff --cached`, captured
+- [x] 4. Capture the change — `git add -A` then `git diff --cached`, captured
       into a Python string rather than left to print itself.
       > **Blocker found in 5.3, and it must be resolved here:** `work/` is in
       > `.gitignore`, so `git add -A` never stages the writer's output and the
@@ -288,6 +288,17 @@ constraint is not real, the handoff decision gets re-opened.
       > are force-staging (`git add -f work`), un-ignoring `work/`, or having
       > the writer edit tracked files instead. Decide it out loud and record
       > why, the way the wait strategy was decided in 4.3.
+      > **Decided 2026-09-03: force-staging (A).** `git add -f work` overrides
+      > `.gitignore` for that one command, `git diff --cached` reads the
+      > result, and `git reset` puts the index back so no human commit ever
+      > carries the artifacts. **B was rejected** because un-ignoring `work/`
+      > writes every run's artifacts into history permanently. **C was
+      > rejected** because letting the writer edit tracked project files hands
+      > every unattended agent a licence to edit real source -- a much larger
+      > decision than a diff, and not one to make as a side effect of one.
+      > **Revisit if** the writer's job ever becomes editing the project itself
+      > rather than producing artifacts; then C is the natural design and the
+      > force-stage disappears.
 - [ ] 5. Deliverable: print exactly what the writer changed, with no terminal
       scraping anywhere in the codebase. Commit.
 
