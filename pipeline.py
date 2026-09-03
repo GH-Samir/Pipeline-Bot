@@ -12,6 +12,11 @@ import herdr_client
 # lines below delete whatever it points at.
 WORK_DIR = "work"
 
+# Agent names must not collide with any agent still alive in this herdr
+# session. A process id is unique among *live* processes -- exactly the window
+# that matters -- and it makes `herdr agent list` readable.
+RUN_ID = str(os.getpid())
+
 
 def clear_work():
     """Delete work/ and recreate it empty.
@@ -65,7 +70,7 @@ if __name__ == "__main__":
 
     try:
         pane_id = herdr_client.split_pane()
-        agent = herdr_client.start_agent("writer", pane_id)
+        agent = herdr_client.start_agent("writer-"+RUN_ID, pane_id)
         print(f"writer running in {pane_id}, status: {agent["agent_status"]}")
 
         # Submit and return immediately -- no waiting here, on purpose.
@@ -89,7 +94,7 @@ if __name__ == "__main__":
         findings_path = os.path.join(WORK_DIR, "findings.md")
 
         reviewer_pane = herdr_client.split_pane()
-        reviewer_agent = herdr_client.start_agent("reviewer", reviewer_pane)
+        reviewer_agent = herdr_client.start_agent("reviewer-"+RUN_ID, reviewer_pane)
 
         # The prompt is data we build, not something typed at a terminal.
         review_prompt = (
