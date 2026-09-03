@@ -82,6 +82,11 @@ clear outputs at startup, and check agent state before trusting any file.
 > line is literally true, but the false-PASS half (state says nothing about
 > output) was supplied by me, despite having been retrieved cleanly on 09-02.
 > Worth a real probe in Section 6, where the state check gets written.
+> **2026-09-03 (Section 5.5):** The 4.5 gap is closed in code, if not yet in
+> retrieval: an empty diff prints to stderr and exits 1, so the pipeline no
+> longer reports success on the strength of `idle` alone. The branch is the
+> learner's; what it should do was stated by me. Honest limit worth naming --
+> an empty diff now fails, but a *wrong* diff still passes. Section 6.
 > **2026-09-03 (Section 5.2):** Defence one now exists in code. Wrote
 > `clear_work()` -- `shutil.rmtree(WORK_DIR, ignore_errors=True)` then
 > `os.makedirs(WORK_DIR)` -- and placed the call correctly: after the usage
@@ -230,6 +235,10 @@ transcript.
 > and resets. `git_client.py` still knows nothing about `work/` -- the caller
 > passes the path, the same boundary the learner chose in 5.3. Moves to
 > `practicing`: the design reasoning (force-stage, then reset) was theirs.
+> **2026-09-03 (Section 5.5, deliverable):** Proven end to end. Predicted the
+> printed diff would hold "the writer's new file in work/" and it held exactly
+> that -- the baseline commit having absorbed everything else first. Grep
+> confirms no terminal read anywhere in the codebase.
 
 ---
 
@@ -393,6 +402,12 @@ covered, which is why guarding the exit-0 parse leaves exit 1 and 2 untouched.
 > **2026-09-02 (Section 2.4):** Structure agent-written; filled the `raise`
 > inside the `except` and correctly predicted the scoping -- consistent with
 > the self-report.
+> **2026-09-03 (Section 5.5):** Best retrieval of the section. Asked whether the
+> Section 2 comment "every failure kind lands here" was still true now that
+> `capture_diff` sits inside the same `try`: "no, giterror wouldnt be caught" --
+> correct, unprompted, about their own comment. Noticing that a true comment has
+> silently gone false is a senior-engineer reflex. The tuple-form
+> `except (A, B)` fix was agent-written at their request.
 > **Known gap, deliberately left:** the exit-1 branch calls
 > `json.loads(completed.stderr)` outside any `try`. Non-JSON on a failing exit 1
 > still crashes with a raw `JSONDecodeError`. Named out loud 2026-09-02; fix
@@ -575,6 +590,12 @@ The mirror of reading exit codes: `sys.exit(n)` sets what your process reports.
 > "a wrapper retries on 1; does the identical command ever succeed?" -- and they
 > corrected to `2` on their own reasoning. `pipeline.py` now speaks the same
 > 1-vs-2 contract to its caller that `herdr` speaks to it.
+> **2026-09-03 (Section 5.5):** Second assignment, same shape as the first:
+> chose `sys.exit(2)` for "the writer produced nothing", then corrected to `1`
+> on the retry test ("yeah it could work the second time"). Two for two on
+> needing the retry probe rather than reaching for it -- but two for two on
+> getting there once asked, and the reasoning was genuinely good: an agent is
+> nondeterministic in a way a missing argv never is.
 
 ### main-guard — `practicing`
 `if __name__ == "__main__":` — run this only when the file is executed directly,

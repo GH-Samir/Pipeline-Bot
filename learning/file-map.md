@@ -119,7 +119,18 @@ called after the usage check and before anything reads `work/`. Defence one
 against stale artifacts. → [[stale-artifact-reporting]]
 → [[destructive-file-operations]]
 
-**Still comes due: Sections 5–6**, one stage at a time.
+**Written so far (Section 5.5, learner-authored):** the handoff wired in —
+`capture_diff(WORK_DIR)` after the wait, an empty diff treated as a failure
+(stderr + exit 1), and the diff printed. The `except` widened to
+`(herdr_client.HerdrError, git_client.GitError)` — agent-written at the
+learner's request, after they spotted the stale comment themselves.
+→ [[filesystem-handoff]] [[stale-artifact-reporting]] [[exit-status-produced]]
+
+**Section 5 complete (2026-09-03).** `pipeline.py` prints exactly what the
+writer changed. No `agent read`, no `--lines`, no terminal parsing anywhere in
+the project.
+
+**Still comes due: Section 6**, the reviewer and consolidate stages.
 
 ### `git_client.py` — `known`
 The boundary for the *other* external tool. Mirrors `herdr_client.py`: builds

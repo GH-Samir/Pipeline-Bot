@@ -299,8 +299,46 @@ constraint is not real, the handoff decision gets re-opened.
       > **Revisit if** the writer's job ever becomes editing the project itself
       > rather than producing artifacts; then C is the natural design and the
       > force-stage disappears.
-- [ ] 5. Deliverable: print exactly what the writer changed, with no terminal
+- [x] 5. Deliverable: print exactly what the writer changed, with no terminal
       scraping anywhere in the codebase. Commit.
+
+---
+
+### Section 5 — COMPLETE (2026-09-03)
+`python3 pipeline.py "<task>"` clears `work/`, commits a baseline, spawns the
+writer, waits for genuine completion, and prints the writer's diff and nothing
+else. Verified live: three lines of `work/greet.py`, no UI chrome, no wrapping.
+Grep confirms no `agent read` anywhere in the codebase — the deliverable's
+"no terminal scraping" half is a fact about the code, not an intention.
+
+**The section's own premise was disproven in task 1** and the design
+re-grounded on better arguments; see the corrected inherited decision above.
+
+Known gaps carried forward:
+- An empty diff exits 1, but a *wrong* diff still passes. Nothing reads the
+  content — that is Section 6's reviewer.
+- Panes still accumulate; nothing closes what it opened. Section 7.
+- `agent start` still hardcodes the name `"writer"`, so a second run in the
+  same herdr session fails with `agent_name_taken`.
+
+---
+
+### Section 5 — COMPLETE (2026-09-03)
+`python3 pipeline.py "<task>"` clears `work/`, commits a baseline, spawns the
+writer, waits for genuine completion, and prints the writer's diff and nothing
+else. Verified live: three lines of `work/greet.py`, no UI chrome, no wrapping.
+Grep confirms no `agent read` anywhere in the codebase — the "no terminal
+scraping" half of the deliverable is a fact about the code, not an intention.
+
+**The section's own premise was disproven in task 1** and the design re-grounded
+on better arguments; see the corrected inherited decision above.
+
+Known gaps carried forward:
+- An empty diff exits 1, but a *wrong* diff still passes. Nothing reads the
+  content — that is Section 6's reviewer.
+- Panes still accumulate; nothing closes what it opened. Section 7.
+- `agent start` still hardcodes the name `"writer"`, so a second run in the same
+  herdr session fails with `agent_name_taken`.
 
 ---
 
