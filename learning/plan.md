@@ -423,8 +423,67 @@ check catches what clearing outputs alone would miss on a half-written file.
       > deliberately left open: `reviewer_settled`'s own status is still never
       > checked before `findings.md` is opened -- parked for Section 7,
       > tracked under [[stale-artifact-reporting]].
-- [ ] 5. Deliverable: WRITER → REVIEWER → CONSOLIDATE end to end from one
+- [x] 5. Deliverable: WRITER → REVIEWER → CONSOLIDATE end to end from one
       command, printing a real summary. Commit.
+      > **Done 2026-09-04, and not the task as originally scoped.** Orienting
+      > for this task surfaced that task 4's commit (`da4dfa1`) only contained
+      > `learning/` files -- the CONSOLIDATE code itself had been silently
+      > swept into the *previous* run's auto-generated "pipeline baseline:
+      > ..." commit. Chased that to its root and fixed it properly rather than
+      > patching around it:
+      > - `baseline_commit`'s unscoped `git add -A` silently skipped
+      >   gitignored `work/` every single run this whole project -- it had
+      >   *never* actually baselined `work/`, only ever whatever else happened
+      >   to be dirty (which is exactly what caused the leak above).
+      > - Scoping it to `work/` alone (`git add -A -f -- work`) proved the
+      >   function's whole "commit" behaviour is permanently dead: `clear_work()`
+      >   already empties `work/` on disk before this runs, so there is never
+      >   anything left there for git to see.
+      > - Retired `baseline_commit`. Replaced with `git_client.require_clean(path)`
+      >   -- refuses (raises `GitError`) if anything *outside* `work/` is dirty,
+      >   instead of silently committing it under a fake message or silently
+      >   letting it leak into the next diff. Called from inside the `try:`
+      >   block this time, so a real failure gets `pipeline failed: ...`
+      >   instead of a raw traceback.
+      > - Proven live at every step: the pre-fix leak actually happened and
+      >   was caught by the reviewer (who correctly spotted out-of-scope
+      >   changes but wrongly blamed the writer and wrongly recommended
+      >   reverting -- judged and rejected, not accepted at face value); the
+      >   post-fix guard correctly refused with a dirty tree (exit 1, clean
+      >   message); and the final clean run passed end to end (`work/is_anagram.py`,
+      >   real reviewer output, `CONSOLIDATE: PASS`, exit 0) with the learner's
+      >   own fix committed under their own message (`dd81913`), pushed.
+      > **Section 6 deliverable reached.** The full WRITER → REVIEWER →
+      > CONSOLIDATE pipeline runs end to end from one command and prints a
+      > real PASS/FAIL summary with a matching exit code -- proven on both
+      > outcomes, live.
+
+---
+
+### Section 6 — COMPLETE (2026-09-04)
+`python3 pipeline.py "<task>"` now runs the full three-stage pipeline: WRITER
+writes, REVIEWER reviews against the diff and writes `VERDICT: PASS` or
+`VERDICT: FAIL` to `findings.md`, CONSOLIDATE reads it, prints `CONSOLIDATE:
+PASS`/`FAIL`, and exits 0/1 to match. Both outcomes proven live, not just in
+isolation: a genuine PASS (`work/is_anagram.py`) and a genuine FAIL (a
+diff-leak the reviewer correctly flagged, even though it misattributed the
+cause).
+
+Task 5 turned into more than its own scope: task 4's commit had silently
+absorbed the CONSOLIDATE code under an unrelated auto-generated message,
+which traced back to `baseline_commit` never having worked correctly for
+`work/` in the first place -- see [[git-baseline-commit]]. It's retired now,
+replaced by `git_client.require_clean()`, an explicit refuse-to-run guard --
+see [[explicit-refusal-over-silent-absorption]].
+
+Known gaps carried forward:
+- `reviewer_settled`'s own status is never checked before `findings.md` is
+  opened -- a reviewer that settles `blocked` mid-write would still be read
+  as if it finished cleanly. Section 7.
+- Panes still accumulate; nothing closes what it opened. Section 7.
+- `capture_diff`'s own `git add -A` is unscoped by design (it needs to catch
+  a writer that strays outside `work/`) -- this is why `require_clean` had to
+  exist, not a leftover bug to fix.
 
 ---
 

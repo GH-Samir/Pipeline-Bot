@@ -1,6 +1,6 @@
 # Knowledge graph — Pipeline Bot
 
-Last updated: 2026-09-03
+Last updated: 2026-09-04
 
 Statuses: `seed` → `introduced` → `practicing` → `understood`
 
@@ -326,8 +326,24 @@ appears in neither, so it shows nothing — regardless of how many commits exist
 safety net.
 `depends-on:` [[git-diff-tracked-vs-untracked]]
 > **2026-09-02:** self-reported prior knowledge.
-
-### git-basics — `understood`
+> **2026-09-04 (Section 6.5), major revision -- function retired.** Live
+> deliverable run swept the learner's own uncommitted `require_clean` edits
+> into the diff shown to the reviewer, which triggered a full audit of
+> `baseline_commit`. Findings, mostly self-driven: (1) its plain `git add -A`
+> silently skips gitignored `work/` with no error -- meaning it had *never*
+> actually captured `work/` in any run this whole project, only ever the
+> incidental other dirty files it found (which is what caused 6.4's "baseline"
+> commit to secretly contain the CONSOLIDATE feature code). (2) Scoping it to
+> `git add -A -- work` turns the silent skip into a hard error (git refuses to
+> add an explicitly-named ignored path without `-f`) -- correctly predicted
+> *why*, unprompted. (3) Even fixed with `-f`, correctly predicted it would
+> report "tree already clean" every time, because `clear_work()` already
+> empties `work/` at the filesystem level right before this runs, so there is
+> never anything left for git to see there -- "work was never tracked."
+> Conclusion: the function's whole "commit" behavior was proven dead for its
+> stated job. Retired outright, replaced by [[explicit-refusal-over-silent-absorption]]'s
+> `require_clean()` -- a guard, not a committer. This leaf's name now refers to
+> a design idea the codebase moved past, not current code; kept for the trail.
 `init`, `add`, `commit`, `log`, `status`. Repo is initialised; **zero commits.**
 > **2026-09-02:** self-reported prior knowledge.
 
@@ -633,17 +649,36 @@ the evidence like any other claim -- including when the reviewer is right.
 > reasoned that a missing findings file falls to FAIL through the `else`
 > branch, "not a specific condition for fail" -- named the *shape* of the
 > check (default-to-FAIL), not just the outcome.
+> **2026-09-04 (Section 6.5), strongest evidence yet.** A live FAIL verdict
+> where the reviewer's *diagnosis* (out-of-scope changes to `git_client.py`
+> and `pipeline.py` in a diff that should only touch `work/`) was correct, but
+> its *causal story* was wrong (it blamed "the writer" for changes that were
+> actually the learner's own uncommitted edits, leaked in by a real pipeline
+> bug the reviewer had no way to see) and its *recommended fix* was actively
+> regressive (revert the very scoping fix that had just closed a worse bug).
+> Asked directly whether the reviewer was right this time: "no, reverting
+> brings back the old commit bug" -- held the line against an articulate,
+> confident-sounding review by reasoning from the actual mechanism, not from
+> how convincing the prose was. This is the leaf's definition exercised at
+> full strength: judged even when the reviewer sounds right.
 
-### git-pathspec-exclusion — `introduced`
+### git-pathspec-exclusion — `practicing`
 `git add -f <dir>` overrides every ignore rule beneath that directory -- there
 is no way to force-stage selectively with `-f` alone. A `:(exclude)<path>`
 pathspec argument overrides `-f` back, so the caller can force one directory in
-while still leaving a path under it out.
+while still leaving a path under it out. The same `:(exclude)` mechanic works
+on any pathspec-taking git command, not just `add -f` -- `git status
+--porcelain -- . :(exclude)path` reads as "everything except `path`."
 `depends-on:` [[destructive-file-operations]]
 > **2026-09-03 (Section 6.1c):** New syntax, agent-demonstrated in a throwaway
 > repo before touching the real one. `capture_diff` gained an `exclude=()`
 > parameter and built `[f":(exclude){p}" for p in exclude]` -- agent-written,
 > since the pathspec form itself was never taught.
+> **2026-09-04 (Section 6.5):** Reused unprompted, in the opposite direction
+> and a different command: `run_git("status", "--porcelain", "--", ".",
+> f":(exclude){path}")` inside `require_clean()`, written correctly on the
+> first pass with no scaffolding. Same syntax, own initiative -- upgraded to
+> `practicing`.
 
 ### module-boundary-ownership — `practicing`
 Which file is allowed to know a given fact. `git_client.py` knows nothing about
@@ -693,6 +728,27 @@ pane" — a *different* question from `server_not_running`, and the one
 > **2026-09-02 (Section 1.4):** Wrote the guard in `pipeline.py` themselves.
 > Verified against herdr's own documented check `test "${HERDR_ENV:-}" = 1`.
 > Correctly tests the *value* `"1"`, so `HERDR_ENV=0` is rejected too.
+
+### explicit-refusal-over-silent-absorption — `practicing`
+A precondition that isn't met should make the program **refuse loudly** --
+raise, or exit with a clear message -- rather than silently work around it or
+silently swallow it. `preflight()` already does this for "am I inside Herdr".
+`require_clean()` extends the same instinct to git state: a dirty tree outside
+`work/` now gets refused, with a message telling the human what to do, instead
+of the two silent failure modes tried and rejected along the way -- auto
+-committing it under a misleading message ([[git-baseline-commit]]'s original
+sin), or leaving it to silently leak into whatever diff runs next.
+`depends-on:` [[preflight-env-guard]] [[git-baseline-commit]] [[custom-exceptions]]
+> **2026-09-04 (Section 6.5):** Named the tension precisely before being told
+> the fix: asked whether the reviewer was right to recommend reverting the
+> scoped `baseline_commit`, answered "no, reverting brings back the old commit
+> bug" -- rejecting a confident, well-argued review's own recommendation on
+> independent reasoning. Then wrote `require_clean()` correctly on the first
+> pass: the exclude-pathspec direction reused from `capture_diff`, but aimed
+> the opposite way (protecting `work/` *from* the check, rather than *for* the
+> diff). Also relocated the call to inside `try:` on the first attempt,
+> unprompted -- though the prediction for *why* that mattered (raw traceback
+> vs. clean message) was wrong going in; corrected once run.
 
 ### env-vars — `introduced`
 Reading environment variables and why config arrives that way. `os.environ` is

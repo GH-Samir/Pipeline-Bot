@@ -171,7 +171,14 @@ handed down. `verdict = "PASS" if "VERDICT: PASS" in findings else "FAIL"`,
 1)`. Both branches verified: PASS live end to end, FAIL via isolated logic.
 → [[reading-a-review]] [[exit-status-produced]]
 
-**Section 6 deliverable still open:** end-to-end run with a commit (task 5).
+**Written so far (Section 6.5, learner-authored):** call site moved --
+`git_client.require_clean(WORK_DIR)` is now the first line inside `try:`
+(replacing the old `baseline_commit` if/else), so a dirty tree outside
+`work/` now produces a clean `pipeline failed: ...` instead of a raw
+traceback. → [[explicit-refusal-over-silent-absorption]]
+
+**Section 6 complete.** The deliverable ran end to end live on both PASS and
+FAIL, with the learner's own fix committed under their own message (`dd81913`).
 `reviewer_settled`'s own status is still never checked before `findings.md`
 is opened -- a real, named gap, parked for Section 7.
 
@@ -181,6 +188,7 @@ argv, runs the CLI, turns failure into a named Python exception, and knows
 nothing about pipelines. Exists as a separate module because one file per tool
 boundary means swapping herdr's transport never touches git.
 → [[module-imports]] [[git-baseline-commit]] [[custom-exceptions]]
+[[explicit-refusal-over-silent-absorption]]
 
 **Written so far (Section 5.3):** `GitError` (one type -- git has no 1-vs-2
 split to honour), `run_git(*args)` which raises on any nonzero exit, and
@@ -189,6 +197,19 @@ split to honour), `run_git(*args)` which raises on any nonzero exit, and
 The argv line and the porcelain guard are learner-authored; **the returncode
 check in `run_git` was written by me** at the learner's request and is on the
 re-earn list.
+
+**Retired (Section 6.5):** `baseline_commit` is gone. Proven live that its
+unscoped `git add -A` had *never* actually captured gitignored `work/` in any
+run this project -- it only ever found and committed whatever unrelated files
+happened to be dirty, which is how task 4's CONSOLIDATE code ended up buried
+in an auto-generated "pipeline baseline: ..." message. Replaced by:
+
+**Written so far (Section 6.5, learner-authored):** `require_clean(path)` --
+raises `GitError` if `git status --porcelain -- . :(exclude)path` is
+non-empty, i.e. anything *outside* `path` is dirty. A guard, not a committer:
+refuses loudly instead of silently absorbing or silently leaking uncommitted
+work into the next diff. → [[explicit-refusal-over-silent-absorption]]
+[[git-pathspec-exclusion]]
 
 **Written so far (Section 5.4, learner-authored):** `capture_diff(extra_path)` —
 `git add -A`, then `git add -f <extra_path>` to override `.gitignore` for that
