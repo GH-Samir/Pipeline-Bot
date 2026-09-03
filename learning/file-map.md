@@ -1,6 +1,6 @@
 # File map — Pipeline Bot
 
-Last updated: 2026-09-02
+Last updated: 2026-09-03
 
 Every path on disk, with **why it exists**. Statuses are evidence-based:
 - `known` — explained in conversation, in the learner's own words.
@@ -96,7 +96,14 @@ pane, starts a `writer` agent in it, and prints the pane id and
 `agent["agent_status"]` — all inside the one `try` that maps any `HerdrError` to
 one stderr line and exit 1. → [[pane-agent-primitives]] [[agent-lifecycle-states]]
 
-**Still comes due: Sections 4–6**, one stage at a time.
+**Written so far (Section 4.5, learner-authored):** the WRITER stage, end to
+end. Reads the task from `sys.argv[1]` and refuses with **exit 2** when it is
+missing -- the same 1-vs-2 contract `herdr` speaks to us, now spoken to our own
+caller. Then `prompt_agent(pane_id, task)` and `wait_until_settled(pane_id)`,
+printing the settled `agent_status`. → [[argv-and-cli-args]]
+→ [[exit-status-produced]] [[submit-wait-race]] [[timeouts]]
+
+**Still comes due: Sections 5–6**, one stage at a time.
 
 ### `.gitignore` — `parked` (3 lines)
 Keeps machine-made and per-run files out of version control:
@@ -146,16 +153,22 @@ exactly one reclaim task. This is what `/next-lesson` reads.
 
 ---
 
-## Not on disk yet, but designed
+## Runtime and still-missing
 
-### `work/` — `parked`
+### `work/` — `known` (exists as of 2026-09-03)
 Runtime scratch directory. The writer's code and the reviewer's findings land
 here at paths *the pipeline chooses*, so the pipeline never has to parse a
 terminal transcript to find them. Gitignored, and wiped at the start of each
 run.
 → [[filesystem-handoff]] [[stale-artifact-reporting]]
 
-**Comes due: Section 4**, with the handoff.
+**Created by the writer agent, not by the pipeline** — Section 4.5's task told
+it to write `work/reverse.py` and it made the directory on the way. The pipeline
+does not yet create or clear `work/` itself; that is Section 5, and it matters,
+because a directory nobody clears is where stale artifacts live.
+
+Contents are gitignored, so `git status` shows nothing after a run — which is
+exactly why Section 5's handoff needs `git add -A` before `git diff --cached`.
 
 ### Tests — `parked` (do not exist)
 There is no test file and no test runner. For a script whose failure mode is

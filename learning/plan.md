@@ -197,8 +197,30 @@ declare victory instantly against an empty diff.
       > agent per stage, A is the better choice.
 - [x] 4. Timeouts everywhere, including the edge where a trivial task finishes
       before the first wait ever sees `working`.
-- [ ] 5. Deliverable: the writer takes a real task and the pipeline detects
+- [x] 5. Deliverable: the writer takes a real task and the pipeline detects
       genuine completion. Commit.
+
+---
+
+### Section 4 — COMPLETE (2026-09-03)
+`python3 pipeline.py "<task>"` splits a pane, boots a writer, hands it the task
+from argv, and blocks until it genuinely settles. Verified live: the writer
+wrote `work/reverse.py` and the pipeline waited for it instead of returning in
+5ms.
+
+**Carried forward, honestly: the stage abstraction was not built.** This
+section's description prescribes a stage that takes a *list* of agents and runs
+spawn-all → submit-all → wait-all as three loops. `pipeline.py` calls the three
+wrapper functions inline, for one agent, in order.
+> **Decided 2026-09-03:** leave it. A "list of one" abstraction with nothing to
+> fan out is structure written against a guess, and the three-loop shape is
+> only *observable* when there are three writers to time. It moves to
+> **Section 8**, which now builds the structure it was going to spend.
+> The cost is named: Section 8 is bigger than its description claims, because
+> the down payment Section 4 promised was never made.
+
+Known gap also carried: nothing checks that the writer produced anything. The
+pipeline prints `idle` whether the file was written or not — Sections 5 and 6.
 
 ---
 
@@ -256,7 +278,11 @@ than created. Break it deliberately in a scratch session and watch what it costs
 ### Section 8 — Fan WRITER out to three agents
 *Receipt: promoted from `project.md`'s parking lot; the stated stretch goal.*
 
-The structure was paid for in advance in Section 4. This section spends it.
+~~The structure was paid for in advance in Section 4. This section spends it.~~
+**Corrected 2026-09-03:** it was not. Section 4 shipped the WRITER stage as
+three inline calls, and deferred the list/three-loop structure to here — see
+Section 4's completion note. This section builds it *and* proves it with the
+clock, which is more work than the line above promised.
 
 **Deliverable:** three writers run genuinely in parallel, and **the clock proves
 it** — time the three-loop version against a folded single-loop version.

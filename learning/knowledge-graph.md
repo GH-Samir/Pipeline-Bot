@@ -1,6 +1,6 @@
 # Knowledge graph — Pipeline Bot
 
-Last updated: 2026-09-02
+Last updated: 2026-09-03
 
 Statuses: `seed` → `introduced` → `practicing` → `understood`
 
@@ -56,6 +56,11 @@ matches the pre-prompt settled state. Fix is to wait for the transition into
 > time the consequence half came from the learner rather than from me.
 > Still `practicing`: the mechanism (what `wait` matches) was mispredicted in
 > the same session the consequence was retrieved. Task 4.3 writes the fix.
+> **2026-09-03 (Section 4.5, deliverable):** The fix now runs in working code
+> the learner assembled: `prompt_agent` then `wait_until_settled`, and a real
+> agent task took the wall clock with it instead of returning instantly. Held at
+> `practicing` -- today exercised the helper written yesterday rather than
+> re-deriving the mechanism.
 > **2026-09-03 (Section 4.1):** Predicted `idle` for the status field returned
 > by `agent prompt` itself, and it was `idle` -- the reply describes the state
 > observed at submission, before the prompt has had any effect. Prediction
@@ -71,6 +76,12 @@ clear outputs at startup, and check agent state before trusting any file.
 > pass things without even running the tests on them, thats why its dangerous."
 > Correct mechanism *and* correct danger, in own words. Strongest answer of the
 > session. Did not separate the two defences — that half was taught.
+> **2026-09-03 (Section 4.5):** Softer than the adoption answer. Asked what the
+> pipeline prints when the writer settles without writing anything: "prints
+> writer running in w1:pA status idle, i suppose its true" -- correct that the
+> line is literally true, but the false-PASS half (state says nothing about
+> output) was supplied by me, despite having been retrieved cleanly on 09-02.
+> Worth a real probe in Section 6, where the state check gets written.
 
 ### stage-abstraction — `seed`
 A stage takes a *list* of agents even when there is one, and runs three phases
@@ -150,6 +161,14 @@ thing). `call()` returns the whole envelope, so reads start `response["result"]`
 > (`pane`), plus exact-spelling drift. Landed only after being handed the
 > literal key list at each level. Task 3.2 (the reclaim) is where this gets
 > probed for real.
+> **2026-09-03 (Section 4.5):** Wrote `settled["agent_info"]["agent_status"]` --
+> the same slip for the **seventh** time, always at the final bracket, and this
+> time immediately after the rule ("whatever `type` says is never a key") had
+> been restated with the literal JSON in front of them. A KeyError drill was
+> offered and declined; the fix was **handed over on request, not earned.**
+> Logged as given. This is the first key read to probe in Section 5 -- restating
+> the rule an eighth time is not the move, since seven restatements have not
+> held.
 
 ### pane-agent-primitives — `introduced`
 `pane split` then `agent start` — a pane must already exist at a shell prompt;
@@ -316,8 +335,16 @@ line by line at the time.
 > structural: an f-string is a *message*, and `raise Name(message)` needs a name
 > in front of the parentheses. Worth re-checking when a string is next built.
 
-### argv-and-cli-args — `seed`
-Taking the task string as an argument.
+### argv-and-cli-args — `practicing`
+`sys.argv` is a list of strings: `argv[0]` is the script's own name, everything
+after it is what the caller typed. A script that reads its task from argv is a
+tool; one with the task welded in is a one-job script.
+> **2026-09-03 (Section 4.5):** Wrote `task = sys.argv[1]` correctly once shown
+> the two-item list. Stronger evidence came from the other direction: asked what
+> passing the AgentInfo *dict* to `prompt_agent` would do, answered "it holds
+> strings so dict would break it" -- retrieved unprompted, from the `str()`
+> lesson in `wait_for_agent` the day before. First time the argv-is-always-text
+> rule came back without being restated.
 
 ### timeouts — `introduced`
 Every wait needs one, and the *value* encodes what the wait means. Phase one
@@ -420,6 +447,11 @@ The mirror of reading exit codes: `sys.exit(n)` sets what your process reports.
 > 1 over 2 on the right grounds.
 > **2026-09-02 (Section 2.5):** Filled `sys.exit(1)` in the failure handler
 > without hesitating or asking. Routine now.
+> **2026-09-03 (Section 4.5):** First exit code *assigned* rather than read.
+> Asked which code fits "run with no task argument", answered `1`. One probe --
+> "a wrapper retries on 1; does the identical command ever succeed?" -- and they
+> corrected to `2` on their own reasoning. `pipeline.py` now speaks the same
+> 1-vs-2 contract to its caller that `herdr` speaks to it.
 
 ### main-guard — `introduced`
 `if __name__ == "__main__":` — run this only when the file is executed directly,
