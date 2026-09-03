@@ -118,6 +118,13 @@ Close only the panes we created; never tear down panes we merely found.
 > have panes open that it doesnt know aobut" -- correct, in own words, and the
 > exact reason cleanup tracks ids rather than guessing. Also the first time the
 > learner named a side effect surviving a failure.
+> **2026-09-03 (Section 6.1):** Paid for by hand. The second run of the session
+> died on `agent_name_taken` because the first writer was still alive in its
+> pane; the learner found the live pane, ran `herdr pane close` on it (after two
+> wrong ids -- `w1`, then `w1:pD`, both `pane_not_found`), and re-ran
+> successfully. Exactly the cost predicted on 09-02: panes the pipeline opened
+> and does not know about. Automating it is Section 7; doing it manually first
+> is better evidence than being told.
 
 ### parallelism-vs-concurrency — `seed`
 Underpins the fan-out. Not yet discussed.
@@ -239,6 +246,13 @@ transcript.
 > printed diff would hold "the writer's new file in work/" and it held exactly
 > that -- the baseline commit having absorbed everything else first. Grep
 > confirms no terminal read anywhere in the codebase.
+> **2026-09-03 (Section 6.1):** The reviewer stage, built by the learner:
+> a second pane, an agent named `reviewer`, and a prompt **assembled in Python**
+> with the captured diff concatenated into it and `findings_path` named
+> explicitly. Chose `+` over Python's implicit literal joining, correctly --
+> adjacent-literal joining does not reach variables. This is the payoff of
+> `capture_diff` returning a value: the handoff is one string moving between two
+> agents, with no terminal in the path.
 
 ---
 
@@ -359,6 +373,15 @@ and `.stderr`. Flattening it with `str()` throws the exit code away.
 > "git git reset" -- correct immediately, so the model is there and the habit is
 > not. Notable: this time it raised `GitError` loudly rather than returning a
 > plausible empty string, because of the returncode check added in 5.3.
+> **2026-09-03 (Section 6.1):** The no-shell half is not held. Asked why a diff
+> full of newlines, quotes and `@@` markers needs no escaping when passed to
+> `agent prompt`: "the agent can figure it out" -- attributing to the LLM what
+> is actually a property of process invocation. Taught: `subprocess` hands the
+> OS a **list**, so no shell ever parses the argument; the same would hold if
+> the target were `grep`. Escaping is only a problem for code that builds one
+> string and asks a shell to take it apart. Worth re-probing -- this is the
+> second time the `run()` docstring the learner wrote has held an answer they
+> did not retrieve.
 > **2026-09-03 (Section 5.3):** The `check=False` half is not held. Wrapped
 > `subprocess.run` in `try`/`except` inside `run_git`, expecting a failed git
 > command to raise. Asked directly whether `subprocess.run` raises on a nonzero
@@ -540,6 +563,17 @@ which makes them cheap to fix and easy to keep making.
 > **2026-09-03:** Third instance (`||` in the `clear_work` guard). Named out
 > loud as an asset that leaks rather than a mistake. Python's spellings:
 > `or`, `and`, `not`.
+
+### reading-a-review — `practicing`
+A review is a claim, not a verdict. The reviewer's findings get judged against
+the evidence like any other claim -- including when the reviewer is right.
+> **2026-09-03 (Section 6.1):** The pipeline reviewed its own repository and
+> reported a real defect in `git_client.capture_diff`: `git add -f <dir>`
+> overrides every ignore rule beneath that directory, so `work/__pycache__`
+> was force-staged into the diff and fed to the reviewer's own prompt. Asked
+> whether the reviewer was right before anything was recorded: "yeah its right,
+> the -f is staging the pycache too" -- correct, against a line the learner had
+> chosen themselves two tasks earlier. Fix scheduled as task 6.1c.
 
 ### testing-absent — `seed`
 No tests, no runner. Acute here: the signature failure is a green run that did

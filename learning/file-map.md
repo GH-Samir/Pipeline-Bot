@@ -130,7 +130,16 @@ learner's request, after they spotted the stale comment themselves.
 writer changed. No `agent read`, no `--lines`, no terminal parsing anywhere in
 the project.
 
-**Still comes due: Section 6**, the reviewer and consolidate stages.
+**Written so far (Section 6.1, learner-authored):** the REVIEWER stage — a
+second `split_pane()`, an agent named `reviewer`, `findings_path` chosen by the
+pipeline (`os.path.join(WORK_DIR, "findings.md")`), a prompt assembled in Python
+with the diff concatenated in, then `prompt_agent` + `wait_until_settled`.
+→ [[filesystem-handoff]] [[pane-agent-primitives]]
+
+**Still comes due: Section 6**, reading the findings back and CONSOLIDATE.
+Two defects are queued as 6.1b and 6.1c — the hardcoded agent name, and
+`capture_diff` force-staging `work/__pycache__` (found by the pipeline's own
+reviewer).
 
 ### `git_client.py` — `known`
 The boundary for the *other* external tool. Mirrors `herdr_client.py`: builds

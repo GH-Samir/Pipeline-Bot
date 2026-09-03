@@ -337,12 +337,11 @@ Known gaps carried forward:
 - An empty diff exits 1, but a *wrong* diff still passes. Nothing reads the
   content — that is Section 6's reviewer.
 - Panes still accumulate; nothing closes what it opened. Section 7.
-- ~~`agent start` hardcodes `"writer"`, so a second run in the same herdr
-  session fails with `agent_name_taken`.~~ **Not observed 2026-09-03:** the
-  pipeline ran three or more times in one herdr session without hitting it, and
-  `herdr agent list` shows a single `writer`. The mechanism is unknown — whether
-  herdr replaces a same-named agent or the earlier ones ended — so this is
-  recorded as unverified, not as fixed. Re-check in Section 7.
+- `agent start` hardcodes `"writer"`, so a second run while the first writer is
+  still alive fails with `agent_name_taken`. **Observed live 2026-09-03**
+  (Section 6.1): `agent name writer is already used`. Earlier runs had not hit
+  it, and I recorded it as "not observed" — that note was wrong within the hour,
+  and this is the corrected record. Recovered by hand with `herdr pane close`.
 
 ---
 
@@ -361,9 +360,16 @@ successfully, then force the writer to block, run again, and prove the state
 check catches what clearing outputs alone would miss on a half-written file.
 
 **Tasks:**
-- [ ] 1. The reviewer stage — a second pane, a second agent, and a prompt built
+- [x] 1. The reviewer stage — a second pane, a second agent, and a prompt built
       from the diff string the pipeline already holds. The reviewer is told
       *where to write*, so nothing has to hunt for its output.
+- [ ] 1b. Unique agent names per run — pulled forward from Section 7 because it
+      **blocks repeat runs**: the second run of a session dies on
+      `agent_name_taken` and needs a manual `herdr pane close` to recover.
+- [ ] 1c. Fix the over-staging your own reviewer found: `git add -f work` in
+      `capture_diff` overrides *every* ignore rule beneath that directory, so
+      `work/__pycache__/*.pyc` lands in the diff and goes straight into the
+      reviewer's prompt. Confirmed by the learner against the evidence.
 - [ ] 2. Read the findings back — the pipeline opens the path it chose, and
       handles the file simply not being there.
 - [ ] 3. Reclaim: [[stale-artifact-reporting]] — check agent state **before**
