@@ -506,6 +506,35 @@ than created. Break it deliberately in a scratch session and watch what it costs
 > Section 5, task 3b on 2026-09-03** at the learner's request — the risk was
 > live, not hypothetical. See there.
 
+**Tasks:**
+- [x] 1. Reclaim: [[resource-cleanup]] — in a scratch session, close a pane you
+      merely *found* rather than one this run created, and watch what it costs.
+      > **Done 2026-09-04.** Opened `w3:p6` deliberately, started a visible
+      > `sleep 120` in it, then closed it via `herdr pane close` after finding
+      > it in `herdr pane list` -- not by remembering the ID from creation.
+      > It vanished instantly, no warning. Correctly generalized the risk
+      > unprompted: "might kill an agent while its working" -- a listing-based
+      > close can't tell disposable from live. Sets up task 4's actual fix:
+      > track this run's own pane IDs at creation time, close only those.
+- [ ] 2. Blocked handling for the writer — teach `agent_blocked`. Extend
+      `wait_for_agent` to pass multiple `--until` values (herdr supports
+      repeating the flag) so a genuinely blocked writer returns fast as
+      `"blocked"` instead of only ever matching `idle` or timing out. This is
+      the fix named back in Section 6.3 — it makes `writer_status != "idle"`
+      live-reachable for the first time, not just provable in isolation.
+- [ ] 3. Same treatment for the reviewer — check `reviewer_settled`'s own
+      status before trusting `findings.md`, closing the gap named in Section
+      6.4/6.5.
+- [ ] 4. Cleanup — track only the pane IDs *this run* opened, and close them
+      when the run ends, success or failure. Verified to never touch a pane
+      it didn't create — that's what task 1 makes visible.
+- [ ] 5. Timeouts everywhere — audit every wait and subprocess call for an
+      explicit timeout, including edges already known (a trivial task
+      finishing before the first wait ever sees `working`, from Section 4).
+- [ ] 6. Deliverable: the first automated test. Proves a blocked writer
+      produces FAIL, not PASS — checked by a script, not by a human eyeballing
+      the terminal.
+
 ---
 
 ### Section 8 — Fan WRITER out to three agents

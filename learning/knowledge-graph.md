@@ -160,6 +160,19 @@ Close only the panes we created; never tear down panes we merely found.
 > it by hand, then named what the workaround leaves behind). Held at
 > `practicing` only because no cleanup code exists yet -- Section 7 is where it
 > becomes `understood`.
+> **2026-09-04 (Section 7.1, reclaim), the missing angle.** Prior evidence was
+> all about panes leaking because nothing closed them; this is the opposite
+> mistake, paid for live: opened a scratch pane (`w3:p6`), started a visible
+> `sleep 120` in it, then closed it the way a naive cleanup routine would --
+> by listing panes and picking "whatever isn't the main one," not by
+> remembering the ID from creation. The pane and the running job vanished
+> instantly, no warning, unrecoverable. Asked what's actually unsafe about
+> that method in a real run: "might kill an agent while its working" --
+> correct, and the right generalization: the danger isn't this specific close
+> (the scratch pane was disposable on purpose), it's that a listing-based
+> heuristic can't distinguish disposable from live. Still `practicing` --
+> task 4 (tracking this run's own IDs in code) is where it becomes
+> `understood`.
 
 ### parallelism-vs-concurrency — `seed`
 Underpins the fan-out. Not yet discussed.

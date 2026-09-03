@@ -122,16 +122,19 @@ def prompt_agent(target, text):
     return response["result"]["agent"]
 
 
-def wait_for_agent(target, until, timeout_ms=300000):
+def wait_for_agent(target, *until, timeout_ms=300000):
     """Block until the agent reaches `until`, or the timeout expires.
 
     Returns the matched result. Verified live 2026-09-03: herdr 0.8.2 answers a
     wait with an `agent_info` payload, so the agent's state is right there --
     `result["agent"]["agent_status"]`, no follow-up `agent get` needed.
     """
-
+    until_args = []
+    for state in until:
+        until_args.append("--until")
+        until_args.append(state)
     # argv is always text: timeout_ms is an int and must be converted.
-    response = call("agent", "wait", target, "--until", until, "--timeout", str(timeout_ms))
+    response = call("agent", "wait", target, *until_args, "--timeout", str(timeout_ms))
 
     return response["result"]
 
@@ -150,6 +153,6 @@ def wait_until_settled(target, timeout_ms=300000):
         # two settles it either way.
         pass
 
-    return wait_for_agent(target, "idle", timeout_ms)
+    return wait_for_agent(target, "idle", "blocked", "done", timeout_ms=timeout_ms)
 
 
