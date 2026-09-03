@@ -116,6 +116,17 @@ if __name__ == "__main__":
 
         print("reviewer finished")
 
+        # The reviewer settling does not prove it wrote anything -- that is
+        # next task's reclaim. For now, handle the plainer case: the file
+        # simply is not there.
+        try:
+            with open(findings_path) as f:
+                findings = f.read()
+        except FileNotFoundError:
+            findings = "no findings file was written"
+
+        print(findings)
+
     # Both tool boundaries, because both can raise inside this try. A new
     # boundary added later has to be added here too -- the comment that used to
     # claim "every failure kind" was already false the moment git arrived.
