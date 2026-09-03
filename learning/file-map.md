@@ -141,10 +141,13 @@ at module level, and both agents named from it (`writer-<pid>`,
 `reviewer-<pid>`). Two runs back to back now survive where the second used to
 die on `agent_name_taken`. → [[process-identity]] [[resource-cleanup]]
 
+**Section 6.1b/1c fixed (2026-09-03):** unique agent names via `RUN_ID`, and
+`capture_diff` now excludes `work/__pycache__` explicitly — the exclusion path
+is built in `pipeline.py` (the file that knows this is a Python project) and
+passed into `git_client.capture_diff`, which still knows nothing about Python.
+→ [[module-boundary-ownership]] [[git-pathspec-exclusion]]
+
 **Still comes due: Section 6**, reading the findings back and CONSOLIDATE.
-Two defects are queued as 6.1b and 6.1c — the hardcoded agent name, and
-`capture_diff` force-staging `work/__pycache__` (found by the pipeline's own
-reviewer).
 
 ### `git_client.py` — `known`
 The boundary for the *other* external tool. Mirrors `herdr_client.py`: builds

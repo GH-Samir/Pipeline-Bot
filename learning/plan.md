@@ -366,7 +366,7 @@ check catches what clearing outputs alone would miss on a half-written file.
 - [x] 1b. Unique agent names per run — pulled forward from Section 7 because it
       **blocks repeat runs**: the second run of a session dies on
       `agent_name_taken` and needs a manual `herdr pane close` to recover.
-- [ ] 1c. Fix the over-staging your own reviewer found: `git add -f work` in
+- [x] 1c. Fix the over-staging your own reviewer found: `git add -f work` in
       `capture_diff` overrides *every* ignore rule beneath that directory, so
       `work/__pycache__/*.pyc` lands in the diff and goes straight into the
       reviewer's prompt. Confirmed by the learner against the evidence.

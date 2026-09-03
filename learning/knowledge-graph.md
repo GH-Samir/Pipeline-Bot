@@ -594,6 +594,40 @@ the evidence like any other claim -- including when the reviewer is right.
 > the -f is staging the pycache too" -- correct, against a line the learner had
 > chosen themselves two tasks earlier. Fix scheduled as task 6.1c.
 
+### git-pathspec-exclusion — `introduced`
+`git add -f <dir>` overrides every ignore rule beneath that directory -- there
+is no way to force-stage selectively with `-f` alone. A `:(exclude)<path>`
+pathspec argument overrides `-f` back, so the caller can force one directory in
+while still leaving a path under it out.
+`depends-on:` [[destructive-file-operations]]
+> **2026-09-03 (Section 6.1c):** New syntax, agent-demonstrated in a throwaway
+> repo before touching the real one. `capture_diff` gained an `exclude=()`
+> parameter and built `[f":(exclude){p}" for p in exclude]` -- agent-written,
+> since the pathspec form itself was never taught.
+
+### module-boundary-ownership — `practicing`
+Which file is allowed to know a given fact. `git_client.py` knows nothing about
+Python -- it never imports it, never mentions `.py` -- so `"__pycache__"` cannot
+be hardcoded inside `capture_diff` without smuggling Python-specific knowledge
+into the one file whose job is being tool-agnostic. The caller that already
+knows it is orchestrating a Python project supplies the string instead.
+`depends-on:` [[module-imports]]
+> **2026-09-03 (Section 6.1c):** Asked which file should own the decision to
+> exclude `__pycache__`, given `git_client.py`'s own "nothing in this file
+> knows what a pipeline is" docstring: answered "both", three times in a row
+> (message duplicated by an interruption) -- true of the bug's symptoms, not of
+> the design question asked. Restated to "which file is *allowed* to know the
+> string `__pycache__` exists", after which the boundary reasoning was mine to
+> give, not retrieved. Then, writing the call site, produced two real
+> instances of the mechanism under discussion: passed the exclude list
+> positionally as `extra_path` (so it staged `__pycache__` as the *included*
+> path with nothing excluded, and diffed it into a throwaway variable never
+> used), and then passed a bare path **string** as `exclude` -- which iterates
+> character by character, building one nonsense pathspec per letter. Both
+> found by tracing the code with the learner rather than by inspection alone.
+> **The final call site (`exclude=[pycache_path]`) was written by me** at the
+> learner's request ("fix it for me"); on the re-earn list.
+
 ### testing-absent — `seed`
 No tests, no runner. Acute here: the signature failure is a green run that did
 nothing.
