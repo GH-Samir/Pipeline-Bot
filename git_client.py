@@ -61,3 +61,29 @@ def baseline_commit(message):
 
     run_git("commit", "-m", message)
     return True
+
+
+def capture_diff(extra_path):
+    """Stage everything that changed since the baseline and return the diff.
+
+    The diff is *returned as a string*, not printed. That is the whole point of
+    this section: the reviewer gets handed a Python value, so nothing anywhere
+    has to scrape a terminal to find out what the writer did.
+
+    `extra_path` is force-staged even if .gitignore excludes it -- this module
+    has no idea what "work/" is, so the caller says which path to include.
+    """
+
+    run_git("add", "-A")
+
+    # -f overrides .gitignore for this one command. Nothing here commits, so
+    # the ignored path still never enters history.
+    run_git("add", "-f", extra_path)
+
+    diff = run_git("diff", "--cached")
+
+
+    run_git("reset")
+
+
+    return diff
