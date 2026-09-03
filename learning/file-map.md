@@ -163,7 +163,17 @@ refusing to trust the diff unless it reads `"idle"`. Live-unreachable through
 the current wait mechanics (documented, not hidden); proven as isolated logic
 instead. → [[stale-artifact-reporting]] [[agent-lifecycle-states]]
 
-**Still comes due: Section 6**, CONSOLIDATE.
+**Written so far (Section 6.4, learner-authored):** CONSOLIDATE.
+`review_prompt` gained one more explicit rule for the reviewer, the "VERDICT:
+PASS`/`VERDICT: FAIL`" line contract, designed in conversation rather than
+handed down. `verdict = "PASS" if "VERDICT: PASS" in findings else "FAIL"`,
+`print(f"CONSOLIDATE: {verdict}")`, `sys.exit(0 if verdict == "PASS" else
+1)`. Both branches verified: PASS live end to end, FAIL via isolated logic.
+→ [[reading-a-review]] [[exit-status-produced]]
+
+**Section 6 deliverable still open:** end-to-end run with a commit (task 5).
+`reviewer_settled`'s own status is still never checked before `findings.md`
+is opened -- a real, named gap, parked for Section 7.
 
 ### `git_client.py` — `known`
 The boundary for the *other* external tool. Mirrors `herdr_client.py`: builds

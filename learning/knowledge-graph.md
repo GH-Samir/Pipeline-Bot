@@ -87,6 +87,13 @@ clear outputs at startup, and check agent state before trusting any file.
 > longer reports success on the strength of `idle` alone. The branch is the
 > learner's; what it should do was stated by me. Honest limit worth naming --
 > an empty diff now fails, but a *wrong* diff still passes. Section 6.
+> **2026-09-03 (Section 6.4):** A parallel, still-open gap surfaced and named
+> rather than fixed: `reviewer_settled` is captured but never checked before
+> `findings.md` is opened -- the writer got its state check in 6.3, the
+> reviewer never did. `findings.md` not existing is handled (defaults to
+> FAIL), but a reviewer that settles `blocked` after partially writing the
+> file would still be read and judged as if it finished cleanly. Named in
+> chat, left out of scope for 6.4 on purpose, parked for Section 7.
 > **2026-09-03 (Section 5.2):** Defence one now exists in code. Wrote
 > `clear_work()` -- `shutil.rmtree(WORK_DIR, ignore_errors=True)` then
 > `os.makedirs(WORK_DIR)` -- and placed the call correctly: after the usage
@@ -614,6 +621,18 @@ the evidence like any other claim -- including when the reviewer is right.
 > whether the reviewer was right before anything was recorded: "yeah its right,
 > the -f is staging the pycache too" -- correct, against a line the learner had
 > chosen themselves two tasks earlier. Fix scheduled as task 6.1c.
+> **2026-09-03 (Section 6.4):** Extended from judging a review's *content* to
+> judging its *form*. Design question: how does code that can't read English
+> decide PASS/FAIL from freeform text? Answered correctly and independently:
+> "tell it to write PASS or FAIL explicitly" -- the same "we pick it, the agent
+> is told it" pattern already used for `findings_path`. Then, asked what a bare
+> `"PASS" in findings` check would do against `"The code did NOT PASS review"`,
+> answered correctly: "it'd match PASS even though it failed" -- caught the
+> substring trap before writing a line of code, driving the design to an
+> anchored `VERDICT: PASS` / `VERDICT: FAIL` contract instead. Also correctly
+> reasoned that a missing findings file falls to FAIL through the `else`
+> branch, "not a specific condition for fail" -- named the *shape* of the
+> check (default-to-FAIL), not just the outcome.
 
 ### git-pathspec-exclusion — `introduced`
 `git add -f <dir>` overrides every ignore rule beneath that directory -- there
@@ -697,7 +716,7 @@ messages *about* the run. Keeps diagnostics out of a redirected PASS/FAIL summar
 > -buffered when captured to a pipe and stderr never is. Explained by me, not
 > retrieved; worth a re-probe when output ordering next matters.
 
-### exit-status-produced — `practicing`
+### exit-status-produced — `understood`
 The mirror of reading exit codes: `sys.exit(n)` sets what your process reports.
 0 = success, nonzero = failure.
 `depends-on:` [[subprocess-exit-contract]]
@@ -716,6 +735,16 @@ The mirror of reading exit codes: `sys.exit(n)` sets what your process reports.
 > needing the retry probe rather than reaching for it -- but two for two on
 > getting there once asked, and the reasoning was genuinely good: an agent is
 > nondeterministic in a way a missing argv never is.
+> **2026-09-03 (Section 6.4):** New shape of the same idea: exit code carrying
+> a *business result* (did the review pass?) rather than an *error condition*
+> (did a tool call fail?). Wrote `sys.exit(0 if verdict == "PASS" else 1)`
+> themselves, unprompted, correctly reusing the 0/nonzero contract for a case
+> where nothing crashed. First conflated the FAIL verdict with the `except`
+> block's "pipeline failed" crash message when predicting -- corrected once
+> shown the two are different code paths with the same exit-code family.
+> Verified live (PASS, exit 0) and via isolated logic against the exact
+> expression (FAIL, exit 1). Upgraded to `understood`: working code, written
+> the day after introduction, both branches demonstrated.
 
 ### main-guard — `practicing`
 `if __name__ == "__main__":` — run this only when the file is executed directly,

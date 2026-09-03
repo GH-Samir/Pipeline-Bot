@@ -404,8 +404,25 @@ check catches what clearing outputs alone would miss on a half-written file.
       > supports repeating the flag) so a real block returns fast instead of
       > timing out** -- named here as a design option, not built; it overlaps
       > Section 7's blocked-handling and belongs there.
-- [ ] 4. CONSOLIDATE — summarise, emit PASS/FAIL, and exit with a status that
+- [x] 4. CONSOLIDATE — summarise, emit PASS/FAIL, and exit with a status that
       matches. The whole project's failure mode is a green run that did nothing.
+      > **Done 2026-09-03.** Design worked out in conversation, not handed
+      > down: since code can't judge English prose, the reviewer is told (in
+      > `review_prompt`, the same "we pick it, it's told it" pattern already
+      > used for `findings_path`) to end `findings.md` with an exact line,
+      > `VERDICT: PASS` or `VERDICT: FAIL`. Learner caught unprompted that a
+      > naive `"PASS" in findings` check would misread `"did NOT PASS
+      > review"`, which is why the check is `"VERDICT: PASS" in findings`
+      > against an anchored line, not a bare keyword search. Wrote
+      > `verdict = "PASS" if "VERDICT: PASS" in findings else "FAIL"` and
+      > `sys.exit(0 if verdict == "PASS" else 1)` themselves. Verified both
+      > branches: PASS live end-to-end (`work/is_palindrome.py`, real
+      > reviewer output, exit 0), FAIL via isolated logic against the exact
+      > expression (same reason as 6.3 -- forcing a real reviewer to fail on
+      > command isn't reliable to trigger live). One real gap named and
+      > deliberately left open: `reviewer_settled`'s own status is still never
+      > checked before `findings.md` is opened -- parked for Section 7,
+      > tracked under [[stale-artifact-reporting]].
 - [ ] 5. Deliverable: WRITER → REVIEWER → CONSOLIDATE end to end from one
       command, printing a real summary. Commit.
 
