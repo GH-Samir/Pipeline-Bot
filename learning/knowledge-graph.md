@@ -125,6 +125,13 @@ Close only the panes we created; never tear down panes we merely found.
 > successfully. Exactly the cost predicted on 09-02: panes the pipeline opened
 > and does not know about. Automating it is Section 7; doing it manually first
 > is better evidence than being told.
+> **2026-09-03 (Section 6.1b):** Asked what a unique agent name does *not* fix:
+> "the agents and panes are still open" -- correct, unprompted, and the exact
+> distinction between suppressing a symptom and removing a cause. Third clean
+> answer on this concept from three different angles (predicted the cost, paid
+> it by hand, then named what the workaround leaves behind). Held at
+> `practicing` only because no cleanup code exists yet -- Section 7 is where it
+> becomes `understood`.
 
 ### parallelism-vs-concurrency — `seed`
 Underpins the fan-out. Not yet discussed.
@@ -553,6 +560,18 @@ original -- check the thing you use.
 > `normpath("")`: "idk". Ran it instead and read the answer off the terminal --
 > `.` and `.` -- which is where the one-check-catches-three insight came from.
 > Prediction absent; the finding was theirs.
+
+### process-identity — `introduced`
+`os.getpid()` is the operating system's id for the running program. No two
+*live* processes share one, which is exactly the uniqueness window an agent name
+needs -- and it keeps `herdr agent list` readable (`writer-84213` says which run
+spawned it). A patch, not a cure: it stops the name collision, it does not stop
+agents and panes accumulating.
+`depends-on:` [[resource-cleanup]]
+> **2026-09-03 (Section 6.1b):** Wrote `RUN_ID = str(os.getpid())` and used it
+> as `"writer-" + RUN_ID` / `"reviewer-" + RUN_ID`. The `str()` was unprompted --
+> third appearance of the argv-is-always-text rule and the first time it came
+> without a reminder. The pid-vs-timestamp reasoning was supplied by me.
 
 ### javascript-to-python-transfer — `practicing`
 Not a project concept -- a pattern in the errors, worth tracking because it

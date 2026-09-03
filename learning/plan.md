@@ -363,7 +363,7 @@ check catches what clearing outputs alone would miss on a half-written file.
 - [x] 1. The reviewer stage — a second pane, a second agent, and a prompt built
       from the diff string the pipeline already holds. The reviewer is told
       *where to write*, so nothing has to hunt for its output.
-- [ ] 1b. Unique agent names per run — pulled forward from Section 7 because it
+- [x] 1b. Unique agent names per run — pulled forward from Section 7 because it
       **blocks repeat runs**: the second run of a session dies on
       `agent_name_taken` and needs a manual `herdr pane close` to recover.
 - [ ] 1c. Fix the over-staging your own reviewer found: `git add -f work` in
