@@ -85,6 +85,28 @@ if __name__ == "__main__":
         # No scraping anywhere: this string came from git, not from a terminal.
         print(diff)
 
+        # We pick the path. The reviewer is told it; nothing ever hunts for it.
+        findings_path = os.path.join(WORK_DIR, "findings.md")
+
+        reviewer_pane = herdr_client.split_pane()
+        reviewer_agent = herdr_client.start_agent("reviewer", reviewer_pane)
+
+        # The prompt is data we build, not something typed at a terminal.
+        review_prompt = (
+            "You are a code reviewer. Another agent was given this task:\n"
+            f"{task}\n\n"
+            "Here is the complete diff of what it produced:\n" +
+            diff +
+            "\n\nReview it. Then write your findings to this exact path, " +
+            findings_path +
+            " and stop. Do not change any other file."
+        )
+
+        herdr_client.prompt_agent(reviewer_pane, review_prompt)
+        reviewer_settled = herdr_client.wait_until_settled(reviewer_pane)
+
+        print("reviewer finished")
+
     # Both tool boundaries, because both can raise inside this try. A new
     # boundary added later has to be added here too -- the comment that used to
     # claim "every failure kind" was already false the moment git arrived.

@@ -337,8 +337,12 @@ Known gaps carried forward:
 - An empty diff exits 1, but a *wrong* diff still passes. Nothing reads the
   content — that is Section 6's reviewer.
 - Panes still accumulate; nothing closes what it opened. Section 7.
-- `agent start` still hardcodes the name `"writer"`, so a second run in the same
-  herdr session fails with `agent_name_taken`.
+- ~~`agent start` hardcodes `"writer"`, so a second run in the same herdr
+  session fails with `agent_name_taken`.~~ **Not observed 2026-09-03:** the
+  pipeline ran three or more times in one herdr session without hitting it, and
+  `herdr agent list` shows a single `writer`. The mechanism is unknown — whether
+  herdr replaces a same-named agent or the earlier ones ended — so this is
+  recorded as unverified, not as fixed. Re-check in Section 7.
 
 ---
 
@@ -355,6 +359,21 @@ end from one command and prints a real summary.
 **Reclaim task:** [[stale-artifact-reporting]] — confirm in code. Run it once
 successfully, then force the writer to block, run again, and prove the state
 check catches what clearing outputs alone would miss on a half-written file.
+
+**Tasks:**
+- [ ] 1. The reviewer stage — a second pane, a second agent, and a prompt built
+      from the diff string the pipeline already holds. The reviewer is told
+      *where to write*, so nothing has to hunt for its output.
+- [ ] 2. Read the findings back — the pipeline opens the path it chose, and
+      handles the file simply not being there.
+- [ ] 3. Reclaim: [[stale-artifact-reporting]] — check agent state **before**
+      opening any file. Force a writer that settles without finishing, run
+      again, and prove the state check catches what `clear_work()` alone
+      cannot: a file that exists but is half-written.
+- [ ] 4. CONSOLIDATE — summarise, emit PASS/FAIL, and exit with a status that
+      matches. The whole project's failure mode is a green run that did nothing.
+- [ ] 5. Deliverable: WRITER → REVIEWER → CONSOLIDATE end to end from one
+      command, printing a real summary. Commit.
 
 ---
 
