@@ -267,11 +267,27 @@ constraint is not real, the handoff decision gets re-opened.
       answer comes before the building.
 - [x] 2. `clear_work()` — create `work/` and wipe it at the start of every run.
       The first of the two defences against [[stale-artifact-reporting]].
-- [ ] 3. The baseline commit — where git belongs in this codebase (not in
+- [x] 3. The baseline commit — where git belongs in this codebase (not in
       `herdr_client.py`), and taking the "before" snapshot that makes "what did
       the writer change?" a answerable question.
+- [x] 3b. Guard `WORK_DIR` before `shutil.rmtree` touches it — refuse empty,
+      absolute, `"."`, or anything climbing out with `..`.
+      > **Pulled forward from Section 7 on 2026-09-03, at the learner's
+      > request.** Reason: `clear_work()` runs for real several times a session
+      > and the only thing between it and the whole project is one string on
+      > line 12. Nothing depended on the original ordering, so the trade is
+      > only that task 4 slides by one. Section 7 keeps [[resource-cleanup]] as
+      > its reclaim; this line leaves it.
+
 - [ ] 4. Capture the change — `git add -A` then `git diff --cached`, captured
       into a Python string rather than left to print itself.
+      > **Blocker found in 5.3, and it must be resolved here:** `work/` is in
+      > `.gitignore`, so `git add -A` never stages the writer's output and the
+      > diff comes back empty. The `.gitignore` line written in Section 1 and
+      > the handoff design written in the brief contradict each other. Options
+      > are force-staging (`git add -f work`), un-ignoring `work/`, or having
+      > the writer edit tracked files instead. Decide it out loud and record
+      > why, the way the wait strategy was decided in 4.3.
 - [ ] 5. Deliverable: print exactly what the writer changed, with no terminal
       scraping anywhere in the codebase. Commit.
 
@@ -308,10 +324,9 @@ The signature failure mode of this project, caught automatically.
 **Reclaim task:** [[resource-cleanup]] — closing a pane you merely found rather
 than created. Break it deliberately in a scratch session and watch what it costs.
 
-> **Carried in from Section 5.2:** a guard on `WORK_DIR` before `clear_work()`
-> runs `shutil.rmtree` on it — refuse empty, absolute, or `"."`. Today the only
-> protection is that the path is a single module-level constant. Named out loud
-> when the line was written; deliberately not bolted on then.
+> ~~**Carried in from Section 5.2:** a guard on `WORK_DIR`.~~ **Moved to
+> Section 5, task 3b on 2026-09-03** at the learner's request — the risk was
+> live, not hypothetical. See there.
 
 ---
 

@@ -103,6 +103,16 @@ caller. Then `prompt_agent(pane_id, task)` and `wait_until_settled(pane_id)`,
 printing the settled `agent_status`. → [[argv-and-cli-args]]
 → [[exit-status-produced]] [[submit-wait-race]] [[timeouts]]
 
+**Written so far (Section 5.3b, learner-authored):** the guard in front of
+`shutil.rmtree` — normalize `WORK_DIR` with `os.path.normpath`, then refuse to
+proceed if it is absolute, `"."`, or climbs out with `..`. Proven in both
+directions: `ValueError` on `WORK_DIR = "."`, still works on `"work"`.
+→ [[destructive-file-operations]] [[path-normalization]]
+
+**Written so far (Section 5.3):** `import git_client`, and the
+`baseline_commit()` call between `clear_work()` and the writer -- agent-written
+at the learner's request. → [[git-baseline-commit]]
+
 **Written so far (Section 5.2, learner-authored):** `WORK_DIR = "work"` and
 `clear_work()` -- `shutil.rmtree(..., ignore_errors=True)` then `os.makedirs`,
 called after the usage check and before anything reads `work/`. Defence one
@@ -110,6 +120,21 @@ against stale artifacts. → [[stale-artifact-reporting]]
 → [[destructive-file-operations]]
 
 **Still comes due: Sections 5–6**, one stage at a time.
+
+### `git_client.py` — `known`
+The boundary for the *other* external tool. Mirrors `herdr_client.py`: builds
+argv, runs the CLI, turns failure into a named Python exception, and knows
+nothing about pipelines. Exists as a separate module because one file per tool
+boundary means swapping herdr's transport never touches git.
+→ [[module-imports]] [[git-baseline-commit]] [[custom-exceptions]]
+
+**Written so far (Section 5.3):** `GitError` (one type -- git has no 1-vs-2
+split to honour), `run_git(*args)` which raises on any nonzero exit, and
+`baseline_commit(message)` which stages everything, skips the commit when
+`git status --porcelain` comes back empty, and returns whether it committed.
+The argv line and the porcelain guard are learner-authored; **the returncode
+check in `run_git` was written by me** at the learner's request and is on the
+re-earn list.
 
 ### `.gitignore` — `parked` (3 lines)
 Keeps machine-made and per-run files out of version control:
@@ -120,8 +145,13 @@ scratch directory, where the writer and reviewer drop their artifacts).
 **Comes due: Section 1.** Small file, real concept: the line between files you
 author and files a machine regenerates.
 
-> Note: `work/` is ignored but does not exist yet. It is created at runtime and
-> **cleared at the start of every run** — see [[stale-artifact-reporting]].
+> Note: `work/` is created at runtime and **cleared at the start of every run**
+> by `clear_work()` — see [[stale-artifact-reporting]].
+>
+> **Collision found 2026-09-03 (Section 5.3):** because `work/` is ignored,
+> `git add -A` never stages it, so `git diff --cached` shows nothing the writer
+> wrote there. The `.gitignore` line and the handoff design disagree. Resolved
+> in Section 5.4, not before.
 
 ### `__pycache__/` — `generated`
 Python's cache of compiled bytecode, written automatically whenever a module is

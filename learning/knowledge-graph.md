@@ -241,6 +241,15 @@ appears in neither, so it shows nothing — regardless of how many commits exist
 > **2026-09-02:** self-reported prior knowledge.
 
 ### git-baseline-commit — `understood`
+> **2026-09-03 (Section 5.3):** Now a running function, not just a concept.
+> `baseline_commit(message)` does `git add -A`, asks `git status --porcelain`
+> whether there is anything to commit (because `git commit` with nothing staged
+> exits nonzero, which `run_git` would raise on), and commits. The learner wrote
+> the porcelain guard; one slip in it -- `run_git("git", "status", ...)`,
+> duplicating the program name that `run_git` already prepends. Left uncorrected
+> it would have paired with the missing returncode check to report
+> "nothing to commit" on a dirty tree: two bugs cancelling into a plausible lie.
+
 "What did the writer change?" is meaningless without a commit marking the state
 *before* it ran. `git diff` is a functional component of this pipeline, not a
 safety net.
@@ -276,6 +285,11 @@ A base class nobody raises (`HerdrError`) plus one sibling per failure kind, so
 > class body (expecting the class itself to perform the exit). Asked what the
 > parent should be, answered "i do not know" -- taught with the tree diagram.
 > Zero learner code in this concept. Stays `introduced` on purpose.
+> **2026-09-03 (Section 5.3):** Predicted the failure of
+> `run_git("frobnicate")` as "giterror with the frobnicate message" -- correct,
+> and the run showed exactly that: their own exception type carrying git's own
+> words. `GitError` is a one-type hierarchy on purpose; git has no 1-vs-2 split
+> to honour.
 > **2026-09-02 (Section 2.4):** Wrote the fourth type unaided --
 > `class HerdrOutputError(HerdrError):` with a docstring, and spelled it
 > identically in the `raise` two branches down. Exactly the work handed off in
@@ -314,6 +328,19 @@ and `.stderr`. Flattening it with `str()` throws the exit code away.
 > Explained 2026-09-02 after `str(run(argv))` appeared in the fill-in.
 > **Live finding (Section 2.1):** herdr writes *both* the JSON error object and
 > plain-text usage errors to `.stderr`; `.stdout` is empty on failure.
+> **2026-09-03 (Section 5.3):** The `check=False` half is not held. Wrapped
+> `subprocess.run` in `try`/`except` inside `run_git`, expecting a failed git
+> command to raise. Asked directly whether `subprocess.run` raises on a nonzero
+> exit: "i dont know". Taught: it never does with `check` at its default -- only
+> a program that cannot launch raises -- so the `except` caught only
+> "git is not installed" while real failures returned `""` that read like
+> success. Same false-PASS shape as the `herdr wait` trap.
+> Also in that fill-in: bare `except:`, a two-argument `GitError(...)`, and
+> `str(stderr)` naming a variable that does not exist.
+> **The corrected `run_git` body was written by me at the learner's request**
+> ("can you do all the changes for me now... just this once", then "do it for
+> me" again for the call site). Trade named out loud both times. This function
+> is on the re-earn list.
 
 ### recursion-limit — `practicing`
 A function that calls itself with no base case does not hang — Python caps call
@@ -401,6 +428,12 @@ the transport can be swapped without `pipeline.py` noticing.
 > variable from `preflight()` as if it lived in the imported module. Corrected
 > after being pointed at the four class names. The split is now real --
 > `pipeline.py` contains no `subprocess` call and never mentions exit codes.
+> **2026-09-03 (Section 5.3):** Asked where the git code belongs, given
+> `herdr_client.py`'s docstring and the file-map invariant that `pipeline.py`
+> makes no subprocess calls. Answered "new file git_client.py" -- correct,
+> unprompted, and the first module boundary the learner has *chosen* rather than
+> been handed. The reasoning (one module per external tool, so swapping herdr's
+> transport leaves git out of the blast radius) was supplied by me.
 
 ### agent-kind-choice — `practicing`
 `--kind claude` is one of 22 supported kinds. Nothing structural depends on it:
@@ -439,6 +472,37 @@ review rather than three literals to get right.
 > makes it survivable. A hard guard (refuse empty/absolute/`.`) was deliberately
 > **not** written today; parked into Section 7 with the rest of the failure
 > handling.
+> **2026-09-03 (Section 5.3b, pulled forward at the learner's request):** Asked
+> for the guard early rather than waiting three tasks -- "lets do it now" -- on
+> the grounds that the risk was live. Correct instinct, and the plan was
+> rewritten to match. Then wrote the guard themselves: all three conditions
+> (`os.path.isabs`, `== "."`, `.startswith("..")`) in one `if`, raising
+> `ValueError` instead of deleting. Only error was `||` for `or`. Predicted the
+> guarded call would raise before running it, and it did. Strongest unaided
+> fill-in of the section; held at `practicing` only because the concept was
+> introduced the same day.
+
+### path-normalization — `introduced`
+`os.path.normpath(p)` collapses a path to its simplest textual form without
+touching the disk. The payoff for a delete guard: `""`, `"."` and `"work/.."`
+all normalize to `"."`, so one comparison catches every way of accidentally
+naming the project root. Then operate on the normalized value, never on the
+original -- check the thing you use.
+`depends-on:` [[destructive-file-operations]]
+> **2026-09-03 (Section 5.3b):** Asked to predict `normpath("work/..")` and
+> `normpath("")`: "idk". Ran it instead and read the answer off the terminal --
+> `.` and `.` -- which is where the one-check-catches-three insight came from.
+> Prediction absent; the finding was theirs.
+
+### javascript-to-python-transfer — `practicing`
+Not a project concept -- a pattern in the errors, worth tracking because it
+predicts them. Fluency in another language leaks at the small syntax: `toString`
+for `str`, `until2` for `until`, `||` for `or`. Structure and logic have been
+consistently right in these moments; only the spelling of the operator is wrong,
+which makes them cheap to fix and easy to keep making.
+> **2026-09-03:** Third instance (`||` in the `clear_work` guard). Named out
+> loud as an asset that leaks rather than a mistake. Python's spellings:
+> `or`, `and`, `not`.
 
 ### testing-absent — `seed`
 No tests, no runner. Acute here: the signature failure is a green run that did
