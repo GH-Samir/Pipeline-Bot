@@ -82,6 +82,13 @@ clear outputs at startup, and check agent state before trusting any file.
 > line is literally true, but the false-PASS half (state says nothing about
 > output) was supplied by me, despite having been retrieved cleanly on 09-02.
 > Worth a real probe in Section 6, where the state check gets written.
+> **2026-09-03 (Section 5.2):** Defence one now exists in code. Wrote
+> `clear_work()` -- `shutil.rmtree(WORK_DIR, ignore_errors=True)` then
+> `os.makedirs(WORK_DIR)` -- and placed the call correctly: after the usage
+> check, before anything touches `work/`. Proven against a real stale artifact
+> (`work/reverse.py`, left by the previous run) rather than a simulated one.
+> Placement was hinted at in the scaffold comment, so the call site is only
+> half-earned; the second defence (state before file) is still untouched.
 
 ### stage-abstraction — `seed`
 A stage takes a *list* of agents even when there is one, and runs three phases
@@ -191,17 +198,33 @@ time.
 ### herdr-protocol-version — `introduced`
 Protocol 20 on herdr 0.8.2. Verified live, twice. The brief's "16 → 17" was wrong.
 
-### alternate-screen-constraint — `seed`
-Agents render on the terminal's alternate screen; rows leaving it never enter
-scrollback, so no `--lines` value recovers a long transcript. **This is the
-justification for the entire filesystem-handoff design and it has NOT been
-re-verified** — it comes from `project.md`, not from a live test.
+### alternate-screen-constraint — `practicing` (and **disproven**)
+~~Agents render on the terminal's alternate screen; rows leaving it never enter
+scrollback, so no `--lines` value recovers a long transcript.~~
+**Tested 2026-09-03 and false on this install.** A Claude Code agent printed 300
+numbered lines; `agent read --source recent --lines 400` returned all 300 plus
+the banner before them. What *is* true, and is what the design now rests on:
+terminal output is a **rendering** — other people's UI chrome interleaved with
+the data, wrapped to the pane's current width. `git diff --cached` is the data.
 > Flagged 2026-09-02 as the one load-bearing claim still resting on a note.
+> **2026-09-03 (Section 5.1, reclaim):** Ran the test. No prediction was offered
+> before running, so there is no prediction to score. The finding itself is the
+> win: an inherited justification checked and killed rather than inherited.
+> Then, shown the raw output and asked what would break a reviewer reading a
+> diff out of it: "ui stuff might get mixed in with the diff" -- correct, in own
+> words, and it is now one of the two grounds the decision stands on. The second
+> ground (width-dependent wrapping, evidence visible in the same paste as
+> `Pipelin`/`e-Bot`) was supplied by me.
+> Not tested: a much longer transcript. 300 lines is the whole claim.
 
-### filesystem-handoff — `seed`
+### filesystem-handoff — `introduced`
 Herdr sequences the agents; the filesystem carries the data. Nothing parses a
 transcript.
 `depends-on:` [[alternate-screen-constraint]]
+> **2026-09-03 (Section 5.1):** The dependency inverted. This no longer rests on
+> "the transcript is unrecoverable" (false), but on "the transcript is a
+> rendering of the data, not the data". Half of that argument came from the
+> learner. The code that spends the decision is tasks 5.2-5.5.
 
 ---
 
@@ -403,6 +426,20 @@ waits on other processes ~100% of the time gains nothing from a fast language.
 Committing as you go. **Zero commits exist.** Section 1.
 > **2026-09-02:** self-reported prior knowledge.
 
+### destructive-file-operations — `practicing`
+`shutil.rmtree(path)` deletes a directory and everything under it -- no
+confirmation, no undo, and it takes whatever string you hand it. `ignore_errors=
+True` covers the first run, where the directory does not exist yet. The reason
+the path lives in one module-level constant is that there is then one line to
+review rather than three literals to get right.
+`depends-on:` [[stale-artifact-reporting]]
+> **2026-09-03 (Section 5.2):** Asked what a future `WORK_DIR = "."` would do on
+> the next run: "deletes everything" -- correct, immediately. Added afterwards
+> by me: that includes `.git`, and pushing to GitHub is the only thing that
+> makes it survivable. A hard guard (refuse empty/absolute/`.`) was deliberately
+> **not** written today; parked into Section 7 with the rest of the failure
+> handling.
+
 ### testing-absent — `seed`
 No tests, no runner. Acute here: the signature failure is a green run that did
 nothing.
@@ -453,10 +490,17 @@ The mirror of reading exit codes: `sys.exit(n)` sets what your process reports.
 > corrected to `2` on their own reasoning. `pipeline.py` now speaks the same
 > 1-vs-2 contract to its caller that `herdr` speaks to it.
 
-### main-guard — `introduced`
+### main-guard — `practicing`
 `if __name__ == "__main__":` — run this only when the file is executed directly,
 not when it is imported. Keeps `pipeline.py` from firing a preflight on import.
 > Agent-written in the skeleton and explained; not yet demonstrated.
+> **2026-09-03 (Section 5.2):** Demonstrated. Asked, before running
+> `python3 -c 'import pipeline; pipeline.clear_work()'` from a plain terminal
+> with `HERDR_ENV` unset, what `preflight()` would do: "nothing happens since it
+> only runs when directly called" -- correct, unprompted, and the run confirmed
+> it. Wording refined afterwards (run-as-script vs imported, not "called"), but
+> the mechanism was theirs. This is also the first time the guard paid off in
+> practice rather than in theory.
 
 ### shell-exit-status — `introduced`
 `$?` holds the exit status of the previous command **in that same shell**. A

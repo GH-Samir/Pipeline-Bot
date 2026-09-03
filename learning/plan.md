@@ -34,10 +34,27 @@ design depends on which kind it is.
 
 ### Filesystem + `git diff` for handoff, not scrollback — **the unusual one**
 Most people's instinct is to read the agent's terminal output. This design
-refuses to. The justification is the alternate-screen constraint — **which has
-not been re-verified on this machine.**
-> **Revisited in Section 5**, where re-proving it is the reclaim task. If it
-> turns out to be false, this decision gets re-opened honestly.
+refuses to. ~~The justification is the alternate-screen constraint.~~
+> **Re-verified live 2026-09-03 (Section 5.1) — the justification was FALSE.**
+> `herdr agent read w1:pC --source recent --lines 400`, after a Claude Code
+> agent printed 300 numbered lines, returned **all 300** plus the startup
+> banner that preceded them. Rows leaving the alternate screen are recoverable
+> on this install. Sixth correction to the original brief.
+>
+> **The decision stands, on new grounds.** Two of them, both visible in that
+> same output:
+> 1. *It is UI, not data.* Learner's own words: "ui stuff might get mixed in
+>    with the diff". The 300 numbers arrived wrapped in a Claude Code banner,
+>    four hook errors, `●` bullets, box rules and a prompt box. Reading it means
+>    parsing somebody else's interface, which changes whenever they ship.
+> 2. *It is width-dependent.* `~/…/Pipeline-Bot` came back split as `Pipelin` /
+>    `e-Bot` because the pane is narrow. A diff read this way breaks at
+>    arbitrary columns, and the breaks move when the window is resized — the
+>    same run yields different text. `git diff --cached` returns identical
+>    bytes at any width.
+>
+> Not tested: whether a *much* longer transcript (3000 lines, not 300) still
+> comes back whole. 300 is what was proven; do not claim more.
 
 ### No framework, no database, no hosting — **deliberate**
 A local CLI script needs none of the three. Worth knowing these were dodged on
@@ -239,6 +256,24 @@ is the one load-bearing claim still resting on a note rather than a test, and it
 justifies this entire section's design. Start an agent, let it produce a long
 transcript, and try to recover it with `agent read --lines`. If it turns out the
 constraint is not real, the handoff decision gets re-opened.
+> **Done 2026-09-03. The constraint is not real** — see the corrected inherited
+> decision above. The section's design survives on the UI-parsing and
+> width-dependence arguments instead, so tasks 2–5 proceed unchanged.
+
+**Tasks:**
+- [x] 1. Reclaim, and it goes first: re-verify [[alternate-screen-constraint]]
+      live. Let an agent produce a long transcript, then try to recover it with
+      `agent read --lines`. Everything below is built on the answer, so the
+      answer comes before the building.
+- [x] 2. `clear_work()` — create `work/` and wipe it at the start of every run.
+      The first of the two defences against [[stale-artifact-reporting]].
+- [ ] 3. The baseline commit — where git belongs in this codebase (not in
+      `herdr_client.py`), and taking the "before" snapshot that makes "what did
+      the writer change?" a answerable question.
+- [ ] 4. Capture the change — `git add -A` then `git diff --cached`, captured
+      into a Python string rather than left to print itself.
+- [ ] 5. Deliverable: print exactly what the writer changed, with no terminal
+      scraping anywhere in the codebase. Commit.
 
 ---
 
@@ -272,6 +307,11 @@ The signature failure mode of this project, caught automatically.
 
 **Reclaim task:** [[resource-cleanup]] — closing a pane you merely found rather
 than created. Break it deliberately in a scratch session and watch what it costs.
+
+> **Carried in from Section 5.2:** a guard on `WORK_DIR` before `clear_work()`
+> runs `shutil.rmtree` on it — refuse empty, absolute, or `"."`. Today the only
+> protection is that the path is a single module-level constant. Named out loud
+> when the line was written; deliberately not bolted on then.
 
 ---
 

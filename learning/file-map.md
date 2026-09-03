@@ -103,6 +103,12 @@ caller. Then `prompt_agent(pane_id, task)` and `wait_until_settled(pane_id)`,
 printing the settled `agent_status`. → [[argv-and-cli-args]]
 → [[exit-status-produced]] [[submit-wait-race]] [[timeouts]]
 
+**Written so far (Section 5.2, learner-authored):** `WORK_DIR = "work"` and
+`clear_work()` -- `shutil.rmtree(..., ignore_errors=True)` then `os.makedirs`,
+called after the usage check and before anything reads `work/`. Defence one
+against stale artifacts. → [[stale-artifact-reporting]]
+→ [[destructive-file-operations]]
+
 **Still comes due: Sections 5–6**, one stage at a time.
 
 ### `.gitignore` — `parked` (3 lines)
@@ -162,10 +168,10 @@ terminal transcript to find them. Gitignored, and wiped at the start of each
 run.
 → [[filesystem-handoff]] [[stale-artifact-reporting]]
 
-**Created by the writer agent, not by the pipeline** — Section 4.5's task told
-it to write `work/reverse.py` and it made the directory on the way. The pipeline
-does not yet create or clear `work/` itself; that is Section 5, and it matters,
-because a directory nobody clears is where stale artifacts live.
+**Created and wiped by `clear_work()` since Section 5.2.** Before that it was
+made by the writer agent itself, as a side effect of Section 4.5's task. Now the
+pipeline owns it: deleted and recreated empty at the start of every run, so
+anything found in it afterwards was necessarily produced by that run.
 
 Contents are gitignored, so `git status` shows nothing after a run — which is
 exactly why Section 5's handoff needs `git add -A` before `git diff --cached`.
