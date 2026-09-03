@@ -63,7 +63,7 @@ def baseline_commit(message):
     return True
 
 
-def capture_diff(extra_path):
+def capture_diff(extra_path, exclude=()):
     """Stage everything that changed since the baseline and return the diff.
 
     The diff is *returned as a string*, not printed. That is the whole point of
@@ -72,13 +72,18 @@ def capture_diff(extra_path):
 
     `extra_path` is force-staged even if .gitignore excludes it -- this module
     has no idea what "work/" is, so the caller says which path to include.
+    `exclude` is the same idea in reverse: paths under `extra_path` to leave
+    out even though -f would otherwise force them in. This module has no idea
+    what "__pycache__" is either -- the caller says what to leave out, the same
+    way it says what to include.
     """
 
     run_git("add", "-A")
 
-    # -f overrides .gitignore for this one command. Nothing here commits, so
-    # the ignored path still never enters history.
-    run_git("add", "-f", extra_path)
+    # -f overrides .gitignore for this one command. A ":(exclude)" pathspec
+    # overrides -f right back, so the caller's exclusions still win. Nothing
+    # here commits, so the ignored path never enters history either way.
+    run_git("add", "-f", extra_path, *[f":(exclude){p}" for p in exclude])
 
     diff = run_git("diff", "--cached")
 

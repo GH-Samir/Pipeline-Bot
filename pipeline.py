@@ -81,7 +81,11 @@ if __name__ == "__main__":
 
         print(f"writer finished: {settled["agent"]["agent_status"]}")
 
-        diff = git_client.capture_diff(WORK_DIR)
+        # pipeline.py is the one file that knows this is a Python project, so
+        # this is where "__pycache__" gets named -- git_client.py never sees
+        # that string.
+        pycache_path = os.path.join(WORK_DIR, "__pycache__")
+        diff = git_client.capture_diff(WORK_DIR, exclude=[pycache_path])
 
         if diff == "":
             print("Diff is empty, not changes have been made", file = sys.stderr)
