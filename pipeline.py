@@ -128,8 +128,16 @@ if __name__ == "__main__":
 
         print("reviewer finished")
 
-        # The reviewer settling does not prove it wrote a well-formed file --
-        # still an open gap, tracked for later. For now: read what's there. 
+        # Same defence the writer got in 6.3: check state before opening
+        # anything. `wait_until_settled` now matches idle/blocked/done for
+        # either caller (fixed once, in 7.2, for both stages), so this is
+        # reachable through the live pipeline, not just proven in isolation.
+        reviewer_status = reviewer_settled["agent"]["agent_status"]
+        if reviewer_status != "idle":
+            print(f"reviewer did not settle cleanly (status: {reviewer_status}); "
+                  "refusing to trust anything it wrote", file=sys.stderr)
+            sys.exit(1)
+
         try:
             with open(findings_path) as f:
                  findings = f.read()

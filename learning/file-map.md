@@ -66,6 +66,15 @@ text. Returns the matched result. → [[submit-wait-race]] [[timeouts]]
 `wait_until_settled(target, timeout_ms=300000)` — phase one swallows a timeout,
 phase two does not. → [[timeouts]] [[submit-wait-race]]
 
+**Written so far (Section 7.2, learner-authored):** `wait_for_agent` now takes
+`*until` instead of a single `until` -- `def wait_for_agent(target, *until,
+timeout_ms=300000)`, building one `"--until"` + state pair per value in a
+loop, then unpacking that list back into `call(...)` with `*until_args`.
+`wait_until_settled`'s phase two now matches `"idle", "blocked", "done"`
+instead of only `"idle"` -- a genuinely blocked writer can be noticed in
+seconds instead of only after the full timeout. → [[variadic-parameters]]
+[[agent-lifecycle-states]]
+
 **Section 2 complete (2026-09-02).** `run()` + `call()` + four exception types.
 Known gap: the exit-1 branch parses stderr outside any `try`. — wiring the exit codes to those types, and
 the exit-code handling that stops the `herdr wait` trap from silently passing.

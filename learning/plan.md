@@ -516,12 +516,25 @@ than created. Break it deliberately in a scratch session and watch what it costs
       > unprompted: "might kill an agent while its working" -- a listing-based
       > close can't tell disposable from live. Sets up task 4's actual fix:
       > track this run's own pane IDs at creation time, close only those.
-- [ ] 2. Blocked handling for the writer — teach `agent_blocked`. Extend
+- [x] 2. Blocked handling for the writer — teach `agent_blocked`. Extend
       `wait_for_agent` to pass multiple `--until` values (herdr supports
       repeating the flag) so a genuinely blocked writer returns fast as
       `"blocked"` instead of only ever matching `idle` or timing out. This is
       the fix named back in Section 6.3 — it makes `writer_status != "idle"`
       live-reachable for the first time, not just provable in isolation.
+      > **Done 2026-09-04.** `wait_for_agent(target, *until,
+      > timeout_ms=300000)` -- variadic, first time in the project. Predicted
+      > the loop's own bug (`"--until"+ state` fuses into one malformed argv
+      > item) before running anything, from reading the code alone. Call site
+      > needed two corrections (a quote typo, then `timeout_ms` passed
+      > positionally, which `*until` would have swallowed as a fourth
+      > "state"). `wait_until_settled` phase two now matches `idle`, `blocked`,
+      > or `done`. Verified live: a normal run is unaffected (idle still
+      > matches, just among three options). **Not yet proven on a real block**
+      > -- nothing has forced the writer into `blocked` yet; that's task 6's
+      > job, using `agent_blocked` (taught, not yet exercised: it fires on
+      > *submission*, not settle, and nothing in this pipeline re-prompts an
+      > already-running agent).
 - [ ] 3. Same treatment for the reviewer — check `reviewer_settled`'s own
       status before trusting `findings.md`, closing the gap named in Section
       6.4/6.5.

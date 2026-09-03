@@ -138,6 +138,14 @@ a synonym for finished. `agent wait` with no `--until` matches idle|done|blocked
 > line-by-line to locate the exact frame. Not proven -- one repeat, one
 > variable -- but the strongest evidence this claim has had since it was
 > flagged. Worth a deliberate, controlled re-test before it's trusted.
+> **2026-09-04 (Section 7.2):** `blocked` stopped being a state the code only
+> talks about and became one it actively watches for: `wait_until_settled`'s
+> phase two now matches `idle`, `blocked`, or `done` instead of only `idle`.
+> This is the fix named back in Section 6.3 as a design option, now built --
+> `writer_status != "idle"` is finally live-reachable in principle, though
+> nothing has forced a real block yet to prove it end to end. That's task 6's
+> job, and `blocked` being "an approval dialog" (this leaf, above) is the
+> likely lever for triggering one on purpose.
 
 ### resource-cleanup — `practicing`
 Close only the panes we created; never tear down panes we merely found.
@@ -254,6 +262,36 @@ thing). `call()` returns the whole envelope, so reads start `response["result"]`
 `def split_pane(direction="right")` — a parameter with a fallback, so callers
 who don't care can omit it. Agent-written in the signature, explained at the
 time.
+
+### variadic-parameters — `practicing`
+`def f(target, *until, timeout_ms=300000)` -- `*until` collects any number of
+extra positional arguments into a tuple, so the same function takes one state
+or several. Anything declared *after* a `*args`-style parameter can only be
+passed by keyword at the call site, never positionally -- that's why
+`timeout_ms=` can't be dropped once `*until` exists. `*until_args` at a call
+site does the reverse: unpacks a list back into separate positional arguments.
+`depends-on:` [[f-strings-and-dict-indexing]]
+> **2026-09-04 (Section 7.2):** Learned by building `wait_for_agent(target,
+> *until, timeout_ms=300000)` themselves. Correctly predicted the loop's own
+> bug before running anything -- `until_args.append("--until"+ state)` fuses
+> into `"--untilidle"`, a single malformed argv item, not two -- caught by
+> reading their own code, not by a failure. The call-site half took two
+> corrections: a quote/comma typo first, then passing `timeout_ms` positionally
+> after `*until` (which `*until` would have silently swallowed as a fourth
+> "state" to wait for) -- the keyword-only consequence of `*args` needed
+> naming twice before it stuck. Verified live: a normal run behaves
+> identically (idle still matches, now among three options instead of one).
+
+### agent-blocked-on-submit — `introduced`
+`agent prompt` rejects outright with `agent_blocked` if the target is already
+blocked -- before sending a single byte of input. Distinct from `blocked` as a
+*wait* outcome ([[agent-lifecycle-states]]): this one fires at submission
+time, not settle time. Doesn't currently fire anywhere in this pipeline (each
+agent is only ever prompted once, right after starting), so it's explained,
+not yet exercised -- already covered by the existing `except HerdrError` if it
+ever does.
+> **2026-09-04 (Section 7.2):** Read from `herdr agent prompt --help` and
+> explained; no code path in this pipeline exercises it yet.
 
 ### herdr-protocol-version — `introduced`
 Protocol 20 on herdr 0.8.2. Verified live, twice. The brief's "16 → 17" was wrong.
