@@ -76,7 +76,18 @@ if __name__ == "__main__":
 
         print(f"writer finished: {settled["agent"]["agent_status"]}")
 
-    # The base, so every failure kind lands here -- including ones added later.
-    except herdr_client.HerdrError as exc:
+        diff = git_client.capture_diff(WORK_DIR)
+
+        if diff == "":
+            print("Diff is empty, not changes have been made", file = sys.stderr)
+            sys.exit(1)
+
+        # No scraping anywhere: this string came from git, not from a terminal.
+        print(diff)
+
+    # Both tool boundaries, because both can raise inside this try. A new
+    # boundary added later has to be added here too -- the comment that used to
+    # claim "every failure kind" was already false the moment git arrived.
+    except (herdr_client.HerdrError, git_client.GitError) as exc:
         print(f"pipeline failed: {exc}", file=sys.stderr)
         sys.exit(1)
