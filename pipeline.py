@@ -61,15 +61,15 @@ if __name__ == "__main__":
 
     clear_work()
 
-    # The baseline. Anything the tree shows after this point is the writer's
-    # doing and nobody else's.
-    if git_client.baseline_commit(f"pipeline baseline: {task}"):
-        print("baseline committed")
-    else:
-        print("baseline: tree already clean")
-
     try:
+        # The guard. Anything the tree shows after this point is the
+        # writer's doing and nobody else's -- require_clean refuses to run
+        # otherwise, instead of silently committing or silently ignoring
+        # whatever was already dirty.
+        git_client.require_clean(WORK_DIR)
+
         pane_id = herdr_client.split_pane()
+
         agent = herdr_client.start_agent("writer-"+RUN_ID, pane_id)
         print(f"writer running in {pane_id}, status: {agent["agent_status"]}")
 

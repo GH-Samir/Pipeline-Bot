@@ -38,30 +38,21 @@ def run_git(*args):
     return completed.stdout
 
 
-def baseline_commit(message):
-    """Snapshot the repo so that anything appearing afterwards is the writer's.
+def require_clean(path):
+    """Raise GitError if anything outside `path` is dirty.
 
-    Without this, `git diff` after the run would also show whatever you had
-    half-finished before you started it, and the reviewer would be handed your
-    unfinished work as if the writer had done it.
-
-    Returns True if a commit was made, False if the tree was already clean.
+    `path` is excluded from the check: clear_work() already manages it at the
+    filesystem level, and it's gitignored anyway, so git has nothing
+    meaningful to say about it.
     """
 
-    run_git("add", "-A")
+    status = run_git("status", "--porcelain", "--", ".", f":(exclude){path}")
 
-    # `git status --porcelain` prints one line per changed path and nothing at
-    # all when there is nothing staged or modified. `git commit` with nothing
-    # to commit exits nonzero -- which run_git would raise on -- so we ask
-    # first instead of committing and catching.
-    # run_git already puts "git" in front, so the subcommand starts here.
-    changes = run_git("status", "--porcelain")
-    if changes == "":
-        return False
-
-    run_git("commit", "-m", message)
-    return True
-
+    if status != "":
+        raise GitError(
+            f"working tree has uncommitted changes outside {path!r}; "
+            "commit your own work before running the pipeline"
+        )
 
 def capture_diff(extra_path, exclude=()):
     """Stage everything that changed since the baseline and return the diff.
