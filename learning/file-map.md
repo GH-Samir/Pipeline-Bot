@@ -157,6 +157,12 @@ together rather than fixed silently -- see [[agent-lifecycle-states]] and
 [[reading-a-traceback]] in the graph. No code changed as a result; it is a
 finding, not yet a fix.
 
+**Written so far (Section 6.3, learner-provoked, agent-written):** the second
+stale-artifact defence -- `writer_status = settled["agent"]["agent_status"]`,
+refusing to trust the diff unless it reads `"idle"`. Live-unreachable through
+the current wait mechanics (documented, not hidden); proven as isolated logic
+instead. → [[stale-artifact-reporting]] [[agent-lifecycle-states]]
+
 **Still comes due: Section 6**, CONSOLIDATE.
 
 ### `git_client.py` — `known`

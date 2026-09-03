@@ -94,6 +94,16 @@ clear outputs at startup, and check agent state before trusting any file.
 > (`work/reverse.py`, left by the previous run) rather than a simulated one.
 > Placement was hinted at in the scaffold comment, so the call site is only
 > half-earned; the second defence (state before file) is still untouched.
+> **2026-09-03 (Section 6.3, reclaim):** The second defence now exists too --
+> agent-written, at the learner's request. Both defences are honestly evaluated
+> as of today: `clear_work()` is proven against a real stale artifact;
+> `writer_status != "idle"` is proven only as isolated logic against a
+> fabricated status, because `agent wait --until idle` never actually returns
+> holding anything but `idle` -- it either matches or times out. That gap is
+> named explicitly in `plan.md`, with the concrete fix (`wait_for_agent` passing
+> multiple `--until` values) scoped into Section 7 rather than papered over.
+> This concept is as close to fully spent as it gets without a live
+> block-to-branch test -- capping at `practicing` on that honest basis.
 
 ### stage-abstraction — `seed`
 A stage takes a *list* of agents even when there is one, and runs three phases

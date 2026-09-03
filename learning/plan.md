@@ -384,10 +384,26 @@ check catches what clearing outputs alone would miss on a half-written file.
       > depend on the pane having been seen/focused, even though a one-off
       > query reads state directly regardless of focus. One repeat with one
       > variable changed -- worth a deliberate re-test, not treated as settled.
-- [ ] 3. Reclaim: [[stale-artifact-reporting]] — check agent state **before**
+- [x] 3. Reclaim: [[stale-artifact-reporting]] — check agent state **before**
       opening any file. Force a writer that settles without finishing, run
       again, and prove the state check catches what `clear_work()` alone
       cannot: a file that exists but is half-written.
+      > **Done 2026-09-03, with an honest limitation.** Wrote the check --
+      > `if writer_status != "idle": ... sys.exit(1)` -- right after the wait,
+      > before `capture_diff` touches anything. But `herdr agent wait --until
+      > idle` (per its own `--help`) matches **only** a literal idle transition
+      > or times out; there is no third path where it returns holding
+      > `"blocked"` or `"done"`. So through the live pipeline as written, this
+      > branch is currently unreachable -- a genuinely blocked writer still
+      > gets caught, just slower, via the existing `HerdrTimeout` -> `except`
+      > path. Proven instead as isolated logic: same lines, run against a
+      > fabricated `{"agent_status": "blocked"}`, correctly exited 1 with the
+      > message. Then re-ran the real deliverable and confirmed a genuine PASS
+      > still sails through unaffected. **To make this branch live-reachable,
+      > `wait_for_agent` would need to pass multiple `--until` values (herdr
+      > supports repeating the flag) so a real block returns fast instead of
+      > timing out** -- named here as a design option, not built; it overlaps
+      > Section 7's blocked-handling and belongs there.
 - [ ] 4. CONSOLIDATE — summarise, emit PASS/FAIL, and exit with a status that
       matches. The whole project's failure mode is a green run that did nothing.
 - [ ] 5. Deliverable: WRITER → REVIEWER → CONSOLIDATE end to end from one
