@@ -4,6 +4,7 @@ pipeline inside Herdr."""
 import os
 import shutil
 import sys
+import git_client
 import herdr_client
 
 
@@ -19,15 +20,17 @@ def clear_work():
     be mistaken for this run's output.
     """
 
-    # TODO(you): two lines, in this order.
-    #   shutil.rmtree(<path>, ignore_errors=True)
-    #       Deletes the directory and everything in it. ignore_errors=True so
-    #       the very first run -- where work/ does not exist yet -- is not a
-    #       crash.
-    #   os.makedirs(<path>)
-    #       Recreates it, empty.
-    shutil.rmtree(WORK_DIR, ignore_errors=True)
-    os.makedirs(WORK_DIR)
+    # Collapse the path first: "work/.." and "" both normalize to ".", so one
+    # check below catches every way of accidentally naming the project root.
+    target = os.path.normpath(WORK_DIR)
+
+    if os.path.isabs(target) or target == "." or target.startswith(".."):
+        raise ValueError(f"refusing to delete {WORK_DIR!r}")
+
+    # Note we delete `target`, not WORK_DIR -- always operate on the exact value
+    # you checked, never on the one you checked a copy of.
+    shutil.rmtree(target, ignore_errors=True)
+    os.makedirs(target)
 
 def preflight():
     """Refuse to run unless we are inside a Herdr-managed pane."""
@@ -51,10 +54,14 @@ if __name__ == "__main__":
 
     task = sys.argv[1]
 
-    # TODO(you): call clear_work(). The placement is the real decision here --
-    # it has to run before anything could read work/, and nowhere near where it
-    # could delete this run's output.
     clear_work()
+
+    # The baseline. Anything the tree shows after this point is the writer's
+    # doing and nobody else's.
+    if git_client.baseline_commit(f"pipeline baseline: {task}"):
+        print("baseline committed")
+    else:
+        print("baseline: tree already clean")
 
     try:
         pane_id = herdr_client.split_pane()
