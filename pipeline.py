@@ -118,8 +118,9 @@ if __name__ == "__main__":
             "Here is the complete diff of what it produced:\n" +
             diff +
             "\n\nReview it. Then write your findings to this exact path, " +
-            findings_path +
-            " and stop. Do not change any other file."
+            findings_path + " and stop. End your findings with exactly one line reading " +
+            "`VERDICT: PASS` or `VERDICT: FAIL`, and nothing else on " +
+            "that line. Do not change any other file."
         )
 
         herdr_client.prompt_agent(reviewer_pane, review_prompt)
@@ -127,17 +128,20 @@ if __name__ == "__main__":
 
         print("reviewer finished")
 
-        # The reviewer settling does not prove it wrote anything -- that is
-        # next task's reclaim. For now, handle the plainer case: the file
-        # simply is not there.
+        # The reviewer settling does not prove it wrote a well-formed file --
+        # still an open gap, tracked for later. For now: read what's there. 
         try:
             with open(findings_path) as f:
-                findings = f.read()
+                 findings = f.read()
         except FileNotFoundError:
             findings = "no findings file was written"
 
+        verdict = "PASS" if "VERDICT: PASS" in findings else "FAIL"
+
+        print(f"CONSOLIDATE: {verdict}")
         print(findings)
 
+        sys.exit(0 if verdict == "PASS" else 1)
     # Both tool boundaries, because both can raise inside this try. A new
     # boundary added later has to be added here too -- the comment that used to
     # claim "every failure kind" was already false the moment git arrived.
