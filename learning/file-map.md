@@ -147,7 +147,17 @@ is built in `pipeline.py` (the file that knows this is a Python project) and
 passed into `git_client.capture_diff`, which still knows nothing about Python.
 → [[module-boundary-ownership]] [[git-pathspec-exclusion]]
 
-**Still comes due: Section 6**, reading the findings back and CONSOLIDATE.
+**Written so far (Section 6.2, learner-authored):** reading the findings back
+-- `try: with open(findings_path) as f: findings = f.read()` /
+`except FileNotFoundError`, printed at the end of the run. Agent-written at the
+learner's request. → [[filesystem-handoff]]
+
+**Live incident (Section 6.2):** a real hang in `wait_until_settled`, diagnosed
+together rather than fixed silently -- see [[agent-lifecycle-states]] and
+[[reading-a-traceback]] in the graph. No code changed as a result; it is a
+finding, not yet a fix.
+
+**Still comes due: Section 6**, CONSOLIDATE.
 
 ### `git_client.py` — `known`
 The boundary for the *other* external tool. Mirrors `herdr_client.py`: builds

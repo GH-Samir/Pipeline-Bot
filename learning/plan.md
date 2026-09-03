@@ -370,8 +370,20 @@ check catches what clearing outputs alone would miss on a half-written file.
       `capture_diff` overrides *every* ignore rule beneath that directory, so
       `work/__pycache__/*.pyc` lands in the diff and goes straight into the
       reviewer's prompt. Confirmed by the learner against the evidence.
-- [ ] 2. Read the findings back — the pipeline opens the path it chose, and
+- [x] 2. Read the findings back — the pipeline opens the path it chose, and
       handles the file simply not being there.
+      > **Live incident 2026-09-03, unplanned:** the same-tab-unfocused
+      > deliverable run hung for 60-90s inside phase two's wait, well inside
+      > its own 300s budget, even though a fresh `herdr agent wait` on the same
+      > pane matched `idle` instantly. Interrupted with Ctrl+C; traceback
+      > confirmed the hang was in `subprocess.run`, waiting on herdr, not in
+      > our Python. Re-ran with the writer's new tab kept focused throughout,
+      > and it completed cleanly. **Real evidence, not proof**, for the
+      > already-flagged, previously-untested claim under
+      > [[agent-lifecycle-states]]: idle detection for a *standing wait* may
+      > depend on the pane having been seen/focused, even though a one-off
+      > query reads state directly regardless of focus. One repeat with one
+      > variable changed -- worth a deliberate re-test, not treated as settled.
 - [ ] 3. Reclaim: [[stale-artifact-reporting]] — check agent state **before**
       opening any file. Force a writer that settles without finishing, run
       again, and prove the state check catches what `clear_work()` alone

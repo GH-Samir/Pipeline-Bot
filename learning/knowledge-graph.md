@@ -110,6 +110,17 @@ a synonym for finished. `agent wait` with no `--until` matches idle|done|blocked
 > `idle` and it did -- from a focused Herdr UI, where that is the correct
 > answer. The environment dependence (background tab settles `done`) was named
 > by me afterwards. Re-probe in Section 4, where the wait is written.
+> **2026-09-03 (Section 6.2, live incident):** The flagged, never-tested half of
+> this concept got its first real evidence. A writer's wait hung for 60-90s on
+> an unfocused new tab even though its state was confirmably `idle` by direct
+> query the whole time; interrupting with Ctrl+C and reading the traceback
+> placed the hang inside `subprocess.run`, waiting on herdr -- not in the
+> learner's code. Re-running with the tab kept focused completed cleanly.
+> Genuinely diagnosed together rather than told: raw `herdr agent wait` and
+> `herdr agent explain` run live against the stuck pane, traceback read
+> line-by-line to locate the exact frame. Not proven -- one repeat, one
+> variable -- but the strongest evidence this claim has had since it was
+> flagged. Worth a deliberate, controlled re-test before it's trusted.
 
 ### resource-cleanup — `practicing`
 Close only the panes we created; never tear down panes we merely found.
@@ -627,6 +638,18 @@ knows it is orchestrating a Python project supplies the string instead.
 > found by tracing the code with the learner rather than by inspection alone.
 > **The final call site (`exclude=[pycache_path]`) was written by me** at the
 > learner's request ("fix it for me"); on the re-earn list.
+
+### reading-a-traceback — `practicing`
+Read bottom to top: the last frame is where execution actually stopped, the
+frames above it are the calls that got you there. `KeyboardInterrupt` at the
+bottom names *why* it stopped (Ctrl+C), not a bug -- the useful information is
+which line was running, not the exception name.
+> **2026-09-03 (Section 6.2, unplanned):** First real one. Interrupted a hung
+> `wait_until_settled` call and the traceback pinpointed the exact frame --
+> `subprocess.run` → `process.communicate` → `selector.select` -- confirming
+> the hang was inside the OS call waiting on herdr, not in a Python loop or a
+> logic error. That precision is what made the focus hypothesis testable
+> instead of a guess.
 
 ### testing-absent — `seed`
 No tests, no runner. Acute here: the signature failure is a green run that did
