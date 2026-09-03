@@ -2,9 +2,32 @@
 pipeline inside Herdr."""
 
 import os
+import shutil
 import sys
 import herdr_client
 
+
+# The pipeline's scratch directory. One name, in one place, because two of the
+# lines below delete whatever it points at.
+WORK_DIR = "work"
+
+
+def clear_work():
+    """Delete work/ and recreate it empty.
+
+    Defence one against stale artifacts: nothing a previous run left behind can
+    be mistaken for this run's output.
+    """
+
+    # TODO(you): two lines, in this order.
+    #   shutil.rmtree(<path>, ignore_errors=True)
+    #       Deletes the directory and everything in it. ignore_errors=True so
+    #       the very first run -- where work/ does not exist yet -- is not a
+    #       crash.
+    #   os.makedirs(<path>)
+    #       Recreates it, empty.
+    shutil.rmtree(WORK_DIR, ignore_errors=True)
+    os.makedirs(WORK_DIR)
 
 def preflight():
     """Refuse to run unless we are inside a Herdr-managed pane."""
@@ -27,6 +50,11 @@ if __name__ == "__main__":
         sys.exit(2)
 
     task = sys.argv[1]
+
+    # TODO(you): call clear_work(). The placement is the real decision here --
+    # it has to run before anything could read work/, and nowhere near where it
+    # could delete this run's output.
+    clear_work()
 
     try:
         pane_id = herdr_client.split_pane()
