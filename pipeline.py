@@ -81,6 +81,17 @@ if __name__ == "__main__":
 
         print(f"writer finished: {settled["agent"]["agent_status"]}")
 
+        # `--until idle` only ever returns on a literal idle match or a
+        # timeout -- so this should always read "idle" here. It is written
+        # anyway, because "should always" is exactly the belief this reclaim
+        # exists to stop trusting blindly. Whatever herdr reports about the
+        # writer, checked *before* a single byte of its output is opened.
+        writer_status = settled["agent"]["agent_status"]
+        if writer_status != "idle":
+            print(f"writer did not settle cleanly (status: {writer_status}); "
+                  "refusing to trust anything on disk", file=sys.stderr)
+            sys.exit(1)
+
         # pipeline.py is the one file that knows this is a Python project, so
         # this is where "__pycache__" gets named -- git_client.py never sees
         # that string.
