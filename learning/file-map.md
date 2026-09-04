@@ -127,6 +127,14 @@ three tasks throughout the section: 30.3s serial vs 18.5s parallel. Parallel
 beat serial in every timed run today, never at a clean 3x. Section 8 —
 the plan's last section — complete.
 
+### `README.md` — `known` (agent-written, unplanned)
+Project-level documentation, not part of the plan or graph — requirements,
+usage, the current cd-into-the-directory limitation, and an honest note that
+the parallel fan-out (`run_writer_stage`) exists and is proven in
+`time_fanout.py` but isn't wired into `pipeline.py`'s own CLI yet. Written at
+the learner's request after asking how to run the pipeline from outside its
+directory.
+
 **Written so far (Section 7.5):** a second, independent timeout layer.
 `run(*args, timeout=30)` and `call(*args, timeout=30)` -- `subprocess.run`
 itself now has a ceiling, catching `subprocess.TimeoutExpired` and raising
