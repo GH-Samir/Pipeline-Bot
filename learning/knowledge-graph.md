@@ -209,8 +209,16 @@ Close only the panes we created; never tear down panes we merely found.
 > beforehand. `understood`: working code, proven live, task 1's reclaim now
 > closed by the code it motivated.
 
-### parallelism-vs-concurrency — `seed`
-Underpins the fan-out. Not yet discussed.
+### parallelism-vs-concurrency — `practicing`
+Underpins the fan-out.
+> **2026-09-04 (Section 8.1):** Correctly reasoned that `pipeline.py` needs no
+> threading/asyncio to get real parallelism, because each agent is a genuinely
+> separate OS process herdr launches -- once two such processes exist and are
+> both running, the OS scheduler runs them together for free; nobody "handles"
+> it. Then correctly identified the actual risk unprompted: our own loop
+> forcing each agent to wait/close before the next is spawned would throw the
+> free parallelism away even though the agents themselves are fully capable of
+> running together. Verbal only so far -- no code written yet; that's Task 2.
 
 ---
 

@@ -643,6 +643,34 @@ it** — time the three-loop version against a folded single-loop version.
 cleanly in conversation. The stopwatch is the test; nothing else distinguishes
 the two versions.
 
+**Tasks:**
+- [x] 1. [[parallelism-vs-concurrency]] — what actually makes three agents run
+      at once, and why a Python script that never spawns a thread of its own
+      can still get real wall-clock parallelism out of three separate herdr
+      panes.
+      **Done 2026-09-04.** No code, verbal only. Correctly reasoned: herdr
+      doesn't "handle" parallelism as a feature — `agent start` just launches a
+      genuinely separate OS process, and independent processes run together
+      under the OS scheduler for free, no scheduling logic needed from anyone.
+      Then named the actual risk unprompted: our own loop making one agent
+      wait/close before the next is spawned would throw that free parallelism
+      away even though the processes themselves are fully capable of running
+      together. Sets up Task 2 directly — that's the exact bug the
+      three-separate-loops structure exists to avoid.
+- [ ] 2. Build the stage — extract the writer's spawn/prompt/wait into a
+      function taking a *list* of tasks, running three separate loops
+      (spawn-all → submit-all → wait-all) instead of one loop doing all three
+      per agent. Prove no regression first with a list of one.
+- [ ] 3. Reclaim: [[fan-out-serialisation]] — fold the three loops into one
+      loop per agent (spawn, submit, wait, repeat) and time it against three
+      trivial tasks. The stopwatch is the test.
+- [ ] 4. Fan out for real — three genuinely different tasks through the
+      three-loop stage, spawned and submitted before any of them are waited
+      on.
+- [ ] 5. Deliverable: time the three-loop version against task 3's folded
+      version on the same three tasks. The clock has to show it, not just the
+      code structure.
+
 ---
 
 ## Still in the parking lot after Section 8

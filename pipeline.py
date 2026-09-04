@@ -51,6 +51,37 @@ def check_writer_status(writer_status):
     """True if it's safe to trust what the writer left on disk."""
     return writer_status == "idle"
 
+
+def run_writer_stage(tasks, panes_opened):
+    """Spawn one writer per task, submit every prompt, then wait for all of them.
+
+    Three separate loops on purpose -- spawn-all, submit-all, wait-all -- not
+    one loop doing all three per writer. That's the difference between three
+    agents actually running together and three agents running one at a time.
+
+    `panes_opened` gets each pane's id appended the instant it exists --
+    before start_agent, prompt, or wait can fail -- so a caller's cleanup can
+    still find and close it even if this function never returns normally.
+
+    Returns a list of (pane_id, settled) pairs, same order as `tasks`.
+    """
+    panes = []
+    for i, task in enumerate(tasks):
+        pane_id = herdr_client.split_pane()
+        panes_opened.append(pane_id)
+        herdr_client.start_agent(f"writer-{i}-{RUN_ID}", pane_id)
+        panes.append(pane_id)
+
+    for pane_id, task in zip(panes, tasks):
+        herdr_client.prompt_agent(pane_id, task)
+
+    results = []
+    for pane_id in panes:
+        settled = herdr_client.wait_until_settled(pane_id)
+        results.append((pane_id, settled))
+
+    return results
+
 if __name__ == "__main__":
     preflight()
     print("preflight ok: inside Herdr")
@@ -67,6 +98,7 @@ if __name__ == "__main__":
     
     panes_opened = []
 
+
     try:
         # The guard. Anything the tree shows after this point is the
         # writer's doing and nobody else's -- require_clean refuses to run
@@ -74,18 +106,9 @@ if __name__ == "__main__":
         # whatever was already dirty.
         git_client.require_clean(WORK_DIR)
 
-        pane_id = herdr_client.split_pane()
-
-        panes_opened.append(pane_id)
-
-        agent = herdr_client.start_agent("writer-"+RUN_ID, pane_id)
-        print(f"writer running in {pane_id}, status: {agent["agent_status"]}")
-
-        # Submit and return immediately -- no waiting here, on purpose.
-        herdr_client.prompt_agent(pane_id, task)
-        print("prompt submitted, waiting for the writer to finish...")
-
-        settled = herdr_client.wait_until_settled(pane_id)
+        # A list of one -- proving the stage costs nothing extra when there's
+        # only one writer, before Task 4 gives it three for real.
+        [(pane_id, settled)] = run_writer_stage([task], panes_opened)
 
         print(f"writer finished: {settled["agent"]["agent_status"]}")
 
