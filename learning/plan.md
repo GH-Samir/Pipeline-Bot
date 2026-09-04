@@ -547,9 +547,22 @@ than created. Break it deliberately in a scratch session and watch what it costs
       > walked through the exact behavior change for a blocked reviewer before
       > testing anything. Verified live: a normal run is unaffected
       > (`work/run_length_encode.py`, PASS, unchanged).
-- [ ] 4. Cleanup — track only the pane IDs *this run* opened, and close them
+- [x] 4. Cleanup — track only the pane IDs *this run* opened, and close them
       when the run ends, success or failure. Verified to never touch a pane
       it didn't create — that's what task 1 makes visible.
+      > **Done 2026-09-04.** `close_pane()` added to `herdr_client.py`;
+      > `panes_opened = []`, `.append()` after each `split_pane()`, and a
+      > `finally:` closing every tracked id (each in its own `try`, so one bad
+      > close doesn't block the rest) added to `pipeline.py` -- all
+      > learner-authored. Correctly predicted, unprompted, that `finally`
+      > still runs even though the `try` ends in `sys.exit()`. The error
+      > message inside the cleanup `except` took two review rounds to get
+      > right (missing both pane id and error, then missing the pane id
+      > alone) before matching their own stated standard. Verified live, on
+      > real evidence: `herdr pane list` after a full run showed only the
+      > terminal's own pane -- the writer and reviewer panes both closed
+      > automatically, correctly predicted beforehand. **`resource-cleanup`
+      > graduates to `understood`.**
 - [ ] 5. Timeouts everywhere — audit every wait and subprocess call for an
       explicit timeout, including edges already known (a trivial task
       finishing before the first wait ever sees `working`, from Section 4).

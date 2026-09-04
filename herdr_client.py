@@ -33,7 +33,7 @@ class HerdrUsageError(HerdrError):
     """
 
 
-def run(*args):
+def run(*args, timeout=30):
     """Run `herdr <args>` and hand back the finished process, untouched.
 
     Deliberately does not raise on failure. Reading the exit status is the
@@ -42,8 +42,11 @@ def run(*args):
     """
 
     argv = ["herdr"] + list(args)
-    
-    completed = subprocess.run(argv, capture_output=True, text=True)
+
+    try:
+        completed = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        raise HerdrTimeout(f"herdr {' '.join(args)} timed out after {timeout}s")
 
     return completed
 
@@ -55,14 +58,14 @@ class HerdrOutputError(HerdrError):
 class HerdrTimeout(HerdrWorldError):
     """Did not produce the state in time, try increasing timeout"""
 
-def call(*args):
+def call(*args, timeout=30):
     """Run `herdr <args>` and return the parsed JSON result.
 
     The exit contract, enforced in one place: success gives you a dict,
     failure gives you an exception with a name that says which kind.
     """
 
-    completed = run(*args)
+    completed = run(*args, timeout=timeout)
 
     # Checked first: exit 2's plain text must never reach json.loads.
     if completed.returncode == 2:
@@ -133,8 +136,12 @@ def wait_for_agent(target, *until, timeout_ms=300000):
     for state in until:
         until_args.append("--until")
         until_args.append(state)
-    # argv is always text: timeout_ms is an int and must be converted.
-    response = call("agent", "wait", target, *until_args, "--timeout", str(timeout_ms))
+    # argv is always text: timeout_ms is an int and must be converted. The
+    # subprocess-level timeout gets a 30s cushion beyond what herdr itself was
+    # told, so herdr always gets the chance to hit its own --timeout and
+    # report cleanly before Python's ceiling would kill it instead.
+    response = call("agent", "wait", target, *until_args, "--timeout", str(timeout_ms),
+                     timeout=(timeout_ms / 1000) + 30)
 
     return response["result"]
 

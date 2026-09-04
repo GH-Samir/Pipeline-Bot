@@ -28,8 +28,10 @@ def run_git(*args):
     # check is left at its default False, so this does NOT raise when git exits
     # nonzero -- it comes back as a CompletedProcess with .returncode set. The
     # only thing that raises here is git failing to launch at all.
-    completed = subprocess.run(argv, capture_output=True, text=True)
-
+    try:
+        completed = subprocess.run(argv, capture_output=True, text=True, timeout=30)
+    except subprocess.TimeoutExpired:
+        raise GitError(f"git {' '.join(args)} timed out after 30s")
     # So the failure check is ours to make. Without it, a failed git command
     # returns an empty string that reads exactly like success.
     if completed.returncode != 0:

@@ -66,6 +66,9 @@ text. Returns the matched result. → [[submit-wait-race]] [[timeouts]]
 `wait_until_settled(target, timeout_ms=300000)` — phase one swallows a timeout,
 phase two does not. → [[timeouts]] [[submit-wait-race]]
 
+**Written so far (Section 7.4, learner-authored):** `close_pane(pane_id)` --
+wraps `pane close <ID>`. Pure repeat of the established wrapping pattern.
+
 **Written so far (Section 7.2, learner-authored):** `wait_for_agent` now takes
 `*until` instead of a single `until` -- `def wait_for_agent(target, *until,
 timeout_ms=300000)`, building one `"--until"` + state pair per value in a
@@ -197,6 +200,13 @@ reviewer_settled["agent"]["agent_status"]`, refusing `findings.md` unless it
 reads `"idle"`. Agent-written at the learner's request; live-reachable this
 time (task 7.2 fixed the shared `wait_until_settled` for both callers).
 → [[stale-artifact-reporting]] [[agent-lifecycle-states]]
+
+**Written so far (Section 7.4, learner-authored):** real cleanup. `panes_opened
+= []` before the `try:`; each `split_pane()` call is followed by
+`panes_opened.append(...)`; a `finally:` after the existing `except` closes
+every tracked id, each in its own `try`/`except ... as exc` so one bad close
+doesn't stop the rest. Verified live: `herdr pane list` after a run shows only
+the terminal's own pane. → [[resource-cleanup]] [[try-except]]
 
 ### `git_client.py` — `known`
 The boundary for the *other* external tool. Mirrors `herdr_client.py`: builds

@@ -161,7 +161,7 @@ a synonym for finished. `agent wait` with no `--until` matches idle|done|blocked
 > job, and `blocked` being "an approval dialog" (this leaf, above) is the
 > likely lever for triggering one on purpose.
 
-### resource-cleanup — `practicing`
+### resource-cleanup — `understood`
 Close only the panes we created; never tear down panes we merely found.
 > **2026-09-02 (Section 3.2):** The deliberate break split a pane and *then*
 > crashed reading the reply. Asked what that costs at cleanup time: "it will
@@ -195,6 +195,19 @@ Close only the panes we created; never tear down panes we merely found.
 > heuristic can't distinguish disposable from live. Still `practicing` --
 > task 4 (tracking this run's own IDs in code) is where it becomes
 > `understood`.
+> **2026-09-04 (Section 7.4), graduated.** `panes_opened = []`, one `.append()`
+> right after each `split_pane()` call, a `finally:` closing every tracked id
+> with its own `try`/`except herdr_client.HerdrError as exc` so one bad close
+> can't stop the rest -- all learner-authored (`close_pane` in
+> `herdr_client.py` too). Two real review rounds on the error message inside
+> that except: first attempt named neither the pane nor the error, second had
+> the error but dropped the pane id, third got both -- caught by checking it
+> against their *own* stated answer ("the pane id and the actual error
+> message") rather than being told what was missing. Verified live against
+> real evidence, not a demo: `herdr pane list` after a full run showed only
+> the terminal's own pane -- correctly predicted "gone, closed automatically"
+> beforehand. `understood`: working code, proven live, task 1's reclaim now
+> closed by the code it motivated.
 
 ### parallelism-vs-concurrency — `seed`
 Underpins the fan-out. Not yet discussed.
@@ -551,6 +564,13 @@ covered, which is why guarding the exit-0 parse leaves exit 1 and 2 untouched.
 > `json.loads(completed.stderr)` outside any `try`. Non-JSON on a failing exit 1
 > still crashes with a raw `JSONDecodeError`. Named out loud 2026-09-02; fix
 > when it bites, or in Section 7 with the rest of the failure handling.
+> **2026-09-04 (Section 7.4):** New corner of already-`understood` territory --
+> `finally` wasn't in this codebase before today. Asked directly whether a
+> `finally:` block after the existing `except` would still run given the `try`
+> ends in `sys.exit(0)`/`sys.exit(1)` and `except` also calls `sys.exit(1)`:
+> "yes, it still runs" -- correct on a genuinely non-obvious point (`sys.exit`
+> raises `SystemExit`, which `finally` runs for like any other exception).
+> Consistent with the self-report; still "not taught from here."
 
 ### f-strings-and-dict-indexing — `introduced`
 `payload["error"]["code"]` walks a nested dict; `f"{x}: {y}"` builds a string
