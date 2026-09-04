@@ -535,9 +535,18 @@ than created. Break it deliberately in a scratch session and watch what it costs
       > job, using `agent_blocked` (taught, not yet exercised: it fires on
       > *submission*, not settle, and nothing in this pipeline re-prompts an
       > already-running agent).
-- [ ] 3. Same treatment for the reviewer — check `reviewer_settled`'s own
+- [x] 3. Same treatment for the reviewer — check `reviewer_settled`'s own
       status before trusting `findings.md`, closing the gap named in Section
       6.4/6.5.
+      > **Done 2026-09-04.** `reviewer_status != "idle"` guard, mirroring
+      > 6.3's writer check exactly, placed before `findings.md` is opened.
+      > Agent-written at the learner's request ("do it for me"). Correctly
+      > predicted, unprompted, that this version would *not* share 6.3's
+      > "unreachable in the live pipeline" limitation, since task 7.2 fixed
+      > the shared `wait_until_settled` for both callers -- and correctly
+      > walked through the exact behavior change for a blocked reviewer before
+      > testing anything. Verified live: a normal run is unaffected
+      > (`work/run_length_encode.py`, PASS, unchanged).
 - [ ] 4. Cleanup — track only the pane IDs *this run* opened, and close them
       when the run ends, success or failure. Verified to never touch a pane
       it didn't create — that's what task 1 makes visible.

@@ -191,6 +191,13 @@ FAIL, with the learner's own fix committed under their own message (`dd81913`).
 `reviewer_settled`'s own status is still never checked before `findings.md`
 is opened -- a real, named gap, parked for Section 7.
 
+**Written so far (Section 7.3, agent-written):** the reviewer gets the same
+state-before-file guard the writer got in 6.3 -- `reviewer_status =
+reviewer_settled["agent"]["agent_status"]`, refusing `findings.md` unless it
+reads `"idle"`. Agent-written at the learner's request; live-reachable this
+time (task 7.2 fixed the shared `wait_until_settled` for both callers).
+→ [[stale-artifact-reporting]] [[agent-lifecycle-states]]
+
 ### `git_client.py` — `known`
 The boundary for the *other* external tool. Mirrors `herdr_client.py`: builds
 argv, runs the CLI, turns failure into a named Python exception, and knows

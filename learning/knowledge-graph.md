@@ -111,6 +111,20 @@ clear outputs at startup, and check agent state before trusting any file.
 > multiple `--until` values) scoped into Section 7 rather than papered over.
 > This concept is as close to fully spent as it gets without a live
 > block-to-branch test -- capping at `practicing` on that honest basis.
+> **2026-09-04 (Section 7.3):** The parked gap from 6.5 closed -- the reviewer
+> now gets the identical guard the writer got in 6.3: `reviewer_status !=
+> "idle"` refuses to open `findings.md` at all. Agent-written again, at the
+> learner's request ("do it for me"), but the understanding wasn't skipped:
+> asked to walk through the behavior change for a `"blocked"` reviewer before
+> testing anything, answered correctly and precisely ("it prints the error and
+> exits 1 instead of reading findings.md"). Different from 6.3's version of
+> this same defence in one real way: this one is live-reachable *right now*,
+> not just provable in isolation -- task 7.2's fix to the shared
+> `wait_until_settled` covers both callers, and the learner correctly predicted
+> that unprompted before being told. Both stages now check state before
+> trusting a file. Still `practicing` -- the code is agent-written both times,
+> and no run has actually forced either agent into `blocked` yet to watch the
+> branch fire for real. That's task 6's job.
 
 ### stage-abstraction — `seed`
 A stage takes a *list* of agents even when there is one, and runs three phases

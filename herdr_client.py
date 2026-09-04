@@ -155,4 +155,6 @@ def wait_until_settled(target, timeout_ms=300000):
 
     return wait_for_agent(target, "idle", "blocked", "done", timeout_ms=timeout_ms)
 
-
+def close_pane(pane_id):
+    """Close a pane by id."""
+    call("pane", "close", pane_id)  

@@ -58,8 +58,10 @@ if __name__ == "__main__":
         sys.exit(2)
 
     task = sys.argv[1]
-
+    
     clear_work()
+    
+    panes_opened = []
 
     try:
         # The guard. Anything the tree shows after this point is the
@@ -69,6 +71,8 @@ if __name__ == "__main__":
         git_client.require_clean(WORK_DIR)
 
         pane_id = herdr_client.split_pane()
+
+        panes_opened.append(pane_id)
 
         agent = herdr_client.start_agent("writer-"+RUN_ID, pane_id)
         print(f"writer running in {pane_id}, status: {agent["agent_status"]}")
@@ -109,6 +113,9 @@ if __name__ == "__main__":
         findings_path = os.path.join(WORK_DIR, "findings.md")
 
         reviewer_pane = herdr_client.split_pane()
+
+        panes_opened.append(reviewer_pane)
+
         reviewer_agent = herdr_client.start_agent("reviewer-"+RUN_ID, reviewer_pane)
 
         # The prompt is data we build, not something typed at a terminal.
@@ -156,3 +163,11 @@ if __name__ == "__main__":
     except (herdr_client.HerdrError, git_client.GitError) as exc:
         print(f"pipeline failed: {exc}", file=sys.stderr)
         sys.exit(1)
+
+    finally:
+        for pane in panes_opened:
+            try:
+                herdr_client.close_pane(pane)
+            except (herdr_client.HerdrError) as exc:
+                print(f"An error occured when closing this pane: {pane} {exc}", file=sys.stderr)
+
