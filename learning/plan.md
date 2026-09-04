@@ -657,19 +657,82 @@ the two versions.
       away even though the processes themselves are fully capable of running
       together. Sets up Task 2 directly — that's the exact bug the
       three-separate-loops structure exists to avoid.
-- [ ] 2. Build the stage — extract the writer's spawn/prompt/wait into a
+- [x] 2. Build the stage — extract the writer's spawn/prompt/wait into a
       function taking a *list* of tasks, running three separate loops
       (spawn-all → submit-all → wait-all) instead of one loop doing all three
       per agent. Prove no regression first with a list of one.
-- [ ] 3. Reclaim: [[fan-out-serialisation]] — fold the three loops into one
+      **Done 2026-09-04.** `run_writer_stage(tasks, panes_opened)` built,
+      mostly agent-written at request after the learner's own first attempt
+      at the spawn loop (with two real bugs, self-surfaced). Learner caught a
+      genuine cleanup-coverage regression in the delegated version and had it
+      fixed by threading `panes_opened` through as a parameter. Verified live
+      end-to-end with a list of one (`is_even.py`), matching every prior
+      deliverable except two now-missing progress prints. Known gap carried:
+      the missing prints are a real, if minor, observability regression, not
+      yet restored.
+- [x] 3. Reclaim: [[fan-out-serialisation]] — fold the three loops into one
       loop per agent (spawn, submit, wait, repeat) and time it against three
       trivial tasks. The stopwatch is the test.
-- [ ] 4. Fan out for real — three genuinely different tasks through the
+      **Done 2026-09-04.** `run_writer_stage_serial` (learner-authored, one
+      bug self-caught by correct prediction: a leftover `panes.append` line
+      copied from the parallel version) plus `time_fanout.py` (new,
+      `time.monotonic()` start/elapsed filled correctly). Real run: 25.5s for
+      3 serial writers (~8.5s each), matching the learner's own "~3x a single
+      writer" prediction almost exactly. [[fan-out-serialisation]] promoted
+      to `understood` on live evidence.
+- [x] 4. Fan out for real — three genuinely different tasks through the
       three-loop stage, spawned and submitted before any of them are waited
       on.
-- [ ] 5. Deliverable: time the three-loop version against task 3's folded
+      **Done 2026-09-04.** `time_fanout.py` extended with a parallel block
+      (fixed by me at request after four real bugs: reused `panes_opened`
+      list, stale `start`/`elapsed`, mislabelled print, missing cleanup).
+      First timed run gave a smaller-than-expected gap (38.1s serial vs
+      26.8s parallel) -- discussed honestly rather than chased down further;
+      most likely explanation is that parallel time tracks the *slowest*
+      individual writer, not an even split, and per-writer time already
+      varies run to run (8.5s vs 12.7s average between two serial runs).
+      Retried and caught direct proof: `herdr pane list` mid-run showed three
+      writer panes all `"agent_status":"working"` at the same instant.
+      Known gap carried: no per-writer timing instrumentation, so the
+      variance theory is plausible but unconfirmed.
+- [x] 5. Deliverable: time the three-loop version against task 3's folded
       version on the same three tasks. The clock has to show it, not just the
       code structure.
+      **Done 2026-09-04.** Predicted "~30s serial, ~25s parallel" from the
+      pattern seen in Task 4; final clean run came in at 30.3s serial vs
+      18.5s parallel — serial prediction dead on, parallel beat prediction.
+      Closing question: what does the clock actually prove, and what does it
+      not? Answered in one line: "it proves parallel is faster, not a clean
+      3x" — exactly right, and exactly what three separate timed runs today
+      support (25.5s serial baseline; 38.1s vs 26.8s; 30.3s vs 18.5s — always
+      a real win, never the textbook ratio).
+
+### Section 8 — COMPLETE (2026-09-04)
+Deliverable met: `run_writer_stage` (parallel, three separate loops) and
+`run_writer_stage_serial` (folded, one loop) both exist, both work, and the
+difference between them was proven three separate ways — a stopwatch
+(Task 3), a live `herdr pane list` catching three panes genuinely `working`
+at once (Task 4), and a final clean side-by-side run (Task 5). The 09-02
+verbal reasoning about [[fan-out-serialisation]] now rests on code and a
+clock, not just a conversation.
+
+Known gaps carried forward, honestly:
+- The parallel speedup was real every time but never close to the textbook
+  3x — most likely because parallel time tracks the *slowest* individual
+  writer rather than an even split, and per-writer time varies run to run.
+  Never confirmed with per-writer timing instrumentation; a real gap, not
+  chased down on purpose.
+- `run_writer_stage` dropped two progress-print lines the old inline writer
+  code had (`writer running in ...`, `prompt submitted, waiting...`) — a
+  small, real observability regression from Section 8.2, still unrestored.
+- [[stage-abstraction]] and [[parallelism-vs-concurrency]] both got strong
+  real-code evidence today but stay capped at `practicing` — first live
+  contact with both was today, and the method doesn't let anything graduate
+  to `understood` on its introduction day regardless of how solid the
+  evidence is. A later day's review question is what would move them.
+
+**This was the plan's last section.** Pipeline Bot's `plan.md` has no
+Section 9 — every section from 1 through 8 is now complete.
 
 ---
 

@@ -82,6 +82,30 @@ def run_writer_stage(tasks, panes_opened):
 
     return results
 
+
+def run_writer_stage_serial(tasks, panes_opened):
+    """The folded version: spawn, submit, and wait for one writer at a time.
+
+    Same three operations as run_writer_stage, just folded into a single
+    loop -- nothing about writer N+1 starts until writer N has fully
+    settled. Exists only to put a real number on what that costs.
+    """
+    results = []
+    for i, task in enumerate(tasks):
+        # TODO(you): spawn, submit, and wait for ONE writer, all in this one
+        # iteration -- the same three calls run_writer_stage used, folded
+        # together instead of split across three loops. Append (pane_id,
+        # settled) to results before moving to the next task.
+        pane_id = herdr_client.split_pane()
+        panes_opened.append(pane_id)
+        herdr_client.start_agent(f"writer-{i}-{RUN_ID}", pane_id)
+        herdr_client.prompt_agent(pane_id, task)
+        settled = herdr_client.wait_until_settled(pane_id)
+        results.append((pane_id, settled))
+
+    return results
+
+
 if __name__ == "__main__":
     preflight()
     print("preflight ok: inside Herdr")

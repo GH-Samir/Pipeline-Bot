@@ -74,6 +74,59 @@ extracted to module level, above `if __name__ == "__main__":`, so it can be
 imported and tested without running the script. `__main__` calls it exactly
 where the inline check used to be. → [[testing-absent]] [[main-guard]]
 
+**Written so far (Section 8.2, mostly agent-written):** `run_writer_stage(tasks,
+panes_opened)` — the stage abstraction. Three separate loops over a list:
+spawn-all (`split_pane` + `start_agent` per task, each pane id appended to
+`panes_opened` the instant it exists), submit-all (`prompt_agent`, no
+waiting), wait-all (`wait_until_settled`, collecting `(pane_id, settled)`
+pairs). `__main__`'s writer stage now reads `[(pane_id, settled)] =
+run_writer_stage([task], panes_opened)` — a list of one, proving no
+regression before Task 4 gives it three for real. Learner wrote the first
+attempt at the spawn loop themselves (two real bugs: `split_pane()`'s return
+value never captured, `start_agent` never called) before asking for the rest
+to be written and explained; the `panes_opened` parameter itself exists
+because the learner caught a cleanup-coverage regression the first version
+introduced (a pane opened inside the function couldn't be tracked for
+`finally` until the whole function returned) and asked for it fixed. Live-run
+verified end to end (`is_even.py`, real writer → reviewer → CONSOLIDATE:
+PASS). One real, minor behavior change surfaced by the run: the old inline
+code's two progress prints (`writer running in ...`, `prompt submitted,
+waiting...`) are gone — `run_writer_stage` doesn't print anything.
+→ [[stage-abstraction]] [[resource-cleanup]] [[fan-out-serialisation]]
+
+**Written so far (Section 8.3, learner-authored):** `run_writer_stage_serial(tasks,
+panes_opened)` — the fold. One loop doing spawn, submit, and wait per writer,
+instead of three separate loops. First pass had one bug (a leftover
+`panes.append(pane_id)` copied from the parallel version, no purpose here) --
+correctly predicted the exact `NameError` before running, then had it removed
+at their request. → [[fan-out-serialisation]]
+
+### `time_fanout.py` — `known`
+Task 3/5's stopwatch. Imports `pipeline`, runs three trivial writer tasks
+through `run_writer_stage_serial`, times it with `time.monotonic()`, prints
+each pane's final status and the elapsed seconds, then closes every pane it
+opened. Not part of the pipeline proper -- a standalone measurement script,
+same pattern as `test_pipeline.py`. Learner filled both timing lines
+correctly; fixed one self-introduced typo (`pipeine` → `pipeline`) after
+correctly predicting the `NameError`. Live run: 25.5s for 3 writers.
+→ [[fan-out-serialisation]] [[monotonic-clock]]
+
+**Written so far (Section 8.4, agent-written at request after 4 self-caught
+bugs):** a second block calling `run_writer_stage` (parallel) on the same
+three tasks, its own fresh `panes_opened` list, its own timing, its own
+cleanup. Learner's first pass reused the serial run's `panes_opened`, never
+recomputed `start`/`elapsed` for the new call, mislabelled the print
+`"serial"`, and closed no panes -- all four self-identified against a
+checklist before asking for the fix. Live run confirmed real parallel
+execution directly: `herdr pane list` mid-run showed three writer panes all
+`"agent_status":"working"` at once. → [[stage-abstraction]]
+[[parallelism-vs-concurrency]] [[fan-out-serialisation]]
+
+**Section 8.5 deliverable run (2026-09-04):** final clean execution, same
+three tasks throughout the section: 30.3s serial vs 18.5s parallel. Parallel
+beat serial in every timed run today, never at a clean 3x. Section 8 —
+the plan's last section — complete.
+
 **Written so far (Section 7.5):** a second, independent timeout layer.
 `run(*args, timeout=30)` and `call(*args, timeout=30)` -- `subprocess.run`
 itself now has a ceiling, catching `subprocess.TimeoutExpired` and raising

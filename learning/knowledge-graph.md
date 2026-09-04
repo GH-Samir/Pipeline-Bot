@@ -23,7 +23,17 @@ stage, not a deficit. Everything below marked `practicing` was demonstrated
 
 ## Orchestration mechanics
 
-### fan-out-serialisation — `practicing`
+### fan-out-serialisation — `understood`
+> **2026-09-04 (Section 8.3):** Confirmed with real code and a real clock.
+> Wrote `run_writer_stage_serial` (the fold, one loop doing spawn/submit/wait
+> per writer) mostly correctly on the first pass -- one bug, a leftover
+> `panes.append(pane_id)` copied over from the parallel version that has no
+> purpose in the folded one -- correctly predicted the exact exception
+> (`NameError: name 'panes' is not defined`) before it ran. Then predicted
+> elapsed time for three serial writers as "roughly 3x a single writer's
+> time" before running `time_fanout.py`; actual result was 25.5s for 3
+> writers (~8.5s each), matching. The 09-02 verbal claim now has a live
+> number behind it.
 > **2026-09-03 (Section 4.3):** Applied to a real design choice. Asked what
 > `prompt --wait` does to three writers in a spawn-all/submit-all/wait-all
 > stage; answered "idk" and asked whether A would be better -- the honest
@@ -126,9 +136,32 @@ clear outputs at startup, and check agent state before trusting any file.
 > and no run has actually forced either agent into `blocked` yet to watch the
 > branch fire for real. That's task 6's job.
 
-### stage-abstraction — `seed`
+### stage-abstraction — `practicing`
 A stage takes a *list* of agents even when there is one, and runs three phases
 over it. Paying for the parallel stretch goal in advance.
+> **2026-09-04 (Section 8.2):** Built and live-verified in `run_writer_stage`
+> (`pipeline.py`). Mostly agent-written at the learner's request, but the
+> learner's own first attempt at the spawn loop surfaced independently (with
+> two real bugs), and the learner caught a real regression in the delegated
+> version on their own -- a pane opened inside the function had no way to
+> reach the caller's cleanup list until the whole function returned -- and
+> asked for `panes_opened` to be threaded through as a parameter to fix it.
+> Confirmed live: `is_even.py` through the full writer → reviewer →
+> CONSOLIDATE pipeline via the new stage, list of one, matching prior runs
+> except two progress-print lines that no longer exist. Capped at `practicing`
+> **2026-09-04 (Section 8.4):** Proven with three real, different tasks, not
+> just a list of one. Caught `herdr pane list` mid-run on a retry after the
+> first attempt missed the window, and saw three writer panes all reading
+> `"agent_status":"working"` at the same instant -- direct empirical proof,
+> not inferred from a clock. Still capped at `practicing`: first live-code
+> contact with this concept was today (Task 2), so it can't graduate today
+> regardless of how strong the evidence is.
+> **2026-09-04 (Section 8.5, deliverable):** Section 8 complete on this
+> concept's own terms -- the stage (`run_writer_stage`) genuinely ran three
+> different writers at once, beat the folded version on the clock every time
+> tested, and was watched doing it live. Real code, real evidence, real
+> speedup. Graduation to `understood` waits for a later day's review, per the
+> first-contact-day cap -- not because anything is missing.
 
 ### agent-lifecycle-states — `practicing`
 `idle` `working` `blocked` `done` `unknown`. `idle` requires the tab to have
@@ -219,6 +252,19 @@ Underpins the fan-out.
 > forcing each agent to wait/close before the next is spawned would throw the
 > free parallelism away even though the agents themselves are fully capable of
 > running together. Verbal only so far -- no code written yet; that's Task 2.
+> **2026-09-04 (Section 8.4):** Watched it happen: `herdr pane list` mid-run
+> showed three separate writer panes all `"agent_status":"working"` at the
+> same instant. The Task 1 claim ("herdr just launches separate processes;
+> the OS runs them together for free") now has a direct observation behind
+> it, not just reasoning. First-contact day was today, so still capped at
+> `practicing`.
+> **2026-09-04 (Section 8.5, deliverable):** Final clean run, same three
+> tasks: 30.3s serial vs 18.5s parallel. Parallel beat serial in all three
+> timed runs today (25.5s serial-only baseline in Task 3; 38.1s vs 26.8s in
+> Task 4; 30.3s vs 18.5s here) -- never a clean 3x, always a real win. Asked
+> what the clock actually proves and doesn't: "it proves parallel is faster,
+> not a clean 3x" -- correct, precise, and matches the evidence exactly
+> rather than overclaiming the textbook ratio. Section 8 complete.
 
 ---
 
@@ -444,6 +490,14 @@ Which files you write and which a machine regenerates.
 
 ## Python
 > **2026-09-02:** self-reported prior knowledge.
+
+### monotonic-clock — `practicing`
+`time.monotonic()` only ever moves forward -- immune to the system clock being
+adjusted mid-run, unlike `time.time()`. The right tool for measuring elapsed
+duration; wrong tool for a timestamp anyone else needs to read.
+> **2026-09-04 (Section 8.3):** Introduced for `time_fanout.py`. Both TODOs
+> (`start = time.monotonic()`, `elapsed = time.monotonic() - start`) filled
+> correctly, first pass. Capped at `practicing` -- first contact today.
 
 ### custom-exceptions — `practicing`
 Distinct exception types are how the exit contract becomes usable by callers.
