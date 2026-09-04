@@ -610,6 +610,24 @@ exists to report. herdr reports these as exit 1 with `code: "timeout"`.
 > meanings were separated out loud. Phase one was written by me at the
 > learner's request; phase two's line is theirs.
 > Measured: 0.005s (no wait) -> 2.058s (two-phase), settling on `idle`.
+> **2026-09-04 (Section 7.5), a second independent layer.** Everything above
+> is herdr's own `--timeout` *argument* -- logic inside the herdr process.
+> Today's audit found `subprocess.run` itself had no ceiling of its own:
+> motivated by the Section 6.2 live hang (traceback sat inside
+> `subprocess.run`, waiting on herdr, not our Python), asked why herdr's own
+> `--timeout` doesn't protect against herdr itself being stuck: "because herdr
+> itself could be stuck, not just the agent" -- correct, unprompted, the exact
+> distinction between the two layers. `git_client.run_git` got `timeout=30` +
+> `except subprocess.TimeoutExpired` self-authored correctly on the first
+> pass (only the error message needed tightening to name the actual command,
+> same review point as task 4's cleanup message). `herdr_client.run` the same.
+> Threading that `timeout` through three layers (`run` -> `call` ->
+> `wait_for_agent`) was attempted but left every parameter declared and
+> unused -- added to each signature, never actually passed to the next call --
+> a real, common bug shape (a knob wired to nothing), fixed by me at explicit
+> request ("do the rest for me"). Correctly computed the cushion math
+> unprompted once shown the finished line: 330s vs. herdr's 300s, "yeah
+> bigger than 300." Verified live: a normal run is unaffected.
 
 ### module-imports — `practicing`
 Why `pipeline.py` importing `herdr_client` keeps subprocess calls in one file:
@@ -800,9 +818,28 @@ which line was running, not the exception name.
 > logic error. That precision is what made the focus hypothesis testable
 > instead of a guess.
 
-### testing-absent — `seed`
+### testing-absent — `practicing`
 No tests, no runner. Acute here: the signature failure is a green run that did
 nothing.
+`depends-on:` [[main-guard]] [[exit-status-produced]]
+> **2026-09-04 (Section 7.6), no longer entirely absent.** First real test:
+> `test_pipeline.py`, plain `assert`, no framework. Required extracting
+> `check_writer_status(writer_status)` out of `if __name__ == "__main__":`
+> first -- code buried in a script entry point can't be imported and called by
+> a test, a real structural reason, not an arbitrary rule. Correctly reasoned
+> why a fake status string beats forcing a real herdr agent into `blocked`
+> for this test: "it's not reliable to trigger on demand" -- unprompted,
+> matching the exact reasoning behind 6.3's isolated-logic fallback. Also
+> connected `main-guard` forward to a second payoff beyond 5.2's: without it,
+> `import pipeline` in the test file would fire `preflight()` immediately --
+> "it wouldnt wokr," correct in substance. The critical step: proved the test
+> can actually fail, not just pass -- broke `check_writer_status` to always
+> `return True`, correctly predicted `AssertionError` + exit 1 beforehand, ran
+> it, saw exactly that, then reverted and confirmed clean again. That's the
+> one property that separates a real test from decoration, and it was
+> deliberately checked rather than assumed. `test_pipeline.py` itself is
+> agent-written (learner asked directly); capped at `practicing` on that
+> basis, but every prediction around it was theirs.
 
 ### preflight-env-guard — `practicing`
 Fail at step 0 before side effects. `HERDR_ENV=1` checks "am I inside a Herdr
@@ -898,6 +935,11 @@ not when it is imported. Keeps `pipeline.py` from firing a preflight on import.
 > it. Wording refined afterwards (run-as-script vs imported, not "called"), but
 > the mechanism was theirs. This is also the first time the guard paid off in
 > practice rather than in theory.
+> **2026-09-04 (Section 7.6), second payoff.** Asked what would happen if
+> `preflight()` etc. weren't behind the guard, given a test file was about to
+> `import pipeline`: "it wouldnt wokr" -- correct in substance (import would
+> fire preflight and crash before any test ran). The guard isn't just tidy
+> anymore; it's the reason this file is importable at all.
 
 ### shell-exit-status — `introduced`
 `$?` holds the exit status of the previous command **in that same shell**. A

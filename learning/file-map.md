@@ -69,6 +69,20 @@ phase two does not. → [[timeouts]] [[submit-wait-race]]
 **Written so far (Section 7.4, learner-authored):** `close_pane(pane_id)` --
 wraps `pane close <ID>`. Pure repeat of the established wrapping pattern.
 
+**Written so far (Section 7.6, learner-authored):** `check_writer_status(writer_status)`
+extracted to module level, above `if __name__ == "__main__":`, so it can be
+imported and tested without running the script. `__main__` calls it exactly
+where the inline check used to be. → [[testing-absent]] [[main-guard]]
+
+**Written so far (Section 7.5):** a second, independent timeout layer.
+`run(*args, timeout=30)` and `call(*args, timeout=30)` -- `subprocess.run`
+itself now has a ceiling, catching `subprocess.TimeoutExpired` and raising
+`HerdrTimeout`. Learner-authored the first pass on `run`; threading `timeout`
+through all three layers (`run` -> `call` -> `wait_for_agent`, the last with
+a `+30` cushion over `timeout_ms`) was agent-written at the learner's
+request after the first attempt left the parameter declared but never
+passed through. → [[timeouts]]
+
 **Written so far (Section 7.2, learner-authored):** `wait_for_agent` now takes
 `*until` instead of a single `until` -- `def wait_for_agent(target, *until,
 timeout_ms=300000)`, building one `"--until"` + state pair per value in a
@@ -208,6 +222,16 @@ every tracked id, each in its own `try`/`except ... as exc` so one bad close
 doesn't stop the rest. Verified live: `herdr pane list` after a run shows only
 the terminal's own pane. → [[resource-cleanup]] [[try-except]]
 
+### `test_pipeline.py` — `known`
+The project's first test. `import pipeline`, then plain `assert` statements
+against `check_writer_status` -- no framework, no runner beyond `python3
+test_pipeline.py` itself. An `AssertionError` crashes the script with a
+nonzero exit code, so the exit code *is* the verdict -- no human reads the
+output to decide pass or fail. Agent-written at the learner's request; toured
+in full -- content shown, behavior predicted correctly (pass case and, after
+a deliberate break, the fail case too), run both ways, reverted.
+→ [[testing-absent]] [[exit-status-produced]] [[main-guard]]
+
 ### `git_client.py` — `known`
 The boundary for the *other* external tool. Mirrors `herdr_client.py`: builds
 argv, runs the CLI, turns failure into a named Python exception, and knows
@@ -243,6 +267,11 @@ one command, then `git diff --cached` captured into a **string**, then
 `git reset` so the index is left as it was found. The diff is returned, never
 printed: that is what makes the handoff a Python value instead of something to
 scrape. → [[filesystem-handoff]] [[git-diff-tracked-vs-untracked]]
+
+**Written so far (Section 7.5, learner-authored):** `run_git`'s
+`subprocess.run` gets `timeout=30` and a `try`/`except subprocess.TimeoutExpired`
+raising `GitError`, self-authored correctly on the first pass -- only the
+error message needed tightening to name the actual command. → [[timeouts]]
 
 ### `.gitignore` — `parked` (3 lines)
 Keeps machine-made and per-run files out of version control:

@@ -563,12 +563,67 @@ than created. Break it deliberately in a scratch session and watch what it costs
       > terminal's own pane -- the writer and reviewer panes both closed
       > automatically, correctly predicted beforehand. **`resource-cleanup`
       > graduates to `understood`.**
-- [ ] 5. Timeouts everywhere — audit every wait and subprocess call for an
+- [x] 5. Timeouts everywhere — audit every wait and subprocess call for an
       explicit timeout, including edges already known (a trivial task
       finishing before the first wait ever sees `working`, from Section 4).
-- [ ] 6. Deliverable: the first automated test. Proves a blocked writer
+      > **Done 2026-09-04.** Audit found the known edge (phase one's 5000ms
+      > swallowed timeout) still correct and unchanged -- the real gap was a
+      > *second, independent* timeout layer: `subprocess.run` itself had no
+      > ceiling in either `herdr_client.run` or `git_client.run_git`, separate
+      > from whatever `--timeout` value gets passed as an argv string. Named
+      > the mechanism unprompted: "because herdr itself could be stuck, not
+      > just the agent." Both files gained `timeout=30` +
+      > `except subprocess.TimeoutExpired`, self-authored correctly on the
+      > first pass in both. Threading that timeout through `run` -> `call` ->
+      > `wait_for_agent` (with a `+30` cushion over `timeout_ms`, so herdr
+      > always gets to report its own timeout before Python's ceiling fires)
+      > was agent-written at the learner's request, after a first attempt left
+      > the parameter declared in three signatures but never actually passed
+      > through any of them. Cushion math (330s vs. herdr's 300s) correctly
+      > verified once shown. Confirmed live: a normal run unaffected.
+- [x] 6. Deliverable: the first automated test. Proves a blocked writer
       produces FAIL, not PASS — checked by a script, not by a human eyeballing
       the terminal.
+      > **Done 2026-09-04.** Extracted `check_writer_status(writer_status)` to
+      > module level (learner-authored) so it's importable without running the
+      > script -- correctly reasoned unprompted why a fake status string beats
+      > forcing a real herdr agent into `blocked` ("it's not reliable to
+      > trigger on demand"), and separately why the existing `main-guard`
+      > matters here too ("it wouldnt wokr" without it). `test_pipeline.py`
+      > (agent-written at learner's request): `assert
+      > check_writer_status("blocked") == False`, `assert
+      > check_writer_status("idle") == True`, plain asserts, no framework --
+      > an `AssertionError` crashes with a nonzero exit code, so the exit code
+      > is the verdict. Correctly predicted pass output/exit 0 before running.
+      > Then proved the test isn't decoration: deliberately broke
+      > `check_writer_status` to always `return True`, correctly predicted
+      > `AssertionError` + exit 1, ran it, saw exactly that, reverted, confirmed
+      > clean again. **Section 7 deliverable reached.**
+
+---
+
+### Section 7 — COMPLETE (2026-09-04)
+The pipeline now fails honestly on both fronts, not just the writer's:
+`wait_until_settled` matches `idle`/`blocked`/`done` for either stage (task
+2), the reviewer gets the same state-before-file guard the writer got in 6.3
+(task 3), every pane this run opens gets tracked and closed regardless of
+success or failure (task 4, [[resource-cleanup]] now `understood`), and every
+`subprocess.run` call has its own independent timeout ceiling, separate from
+whatever `--timeout` gets passed as an argument (task 5). The section's own
+reclaim (task 1) was paid for live before any code existed to prevent it.
+Deliverable: the project's first real test, proving a blocked writer produces
+FAIL via a script's exit code, not a human reading the terminal.
+
+Known gaps carried forward:
+- `test_pipeline.py` covers only the writer's status check. The reviewer's
+  identical guard (7.3) and the PASS/FAIL verdict parsing (6.4) have the same
+  shape and would be equally testable, but aren't tested yet.
+- No real herdr agent has ever actually been forced into `blocked` and
+  observed end to end -- every proof of that branch, on both writer and
+  reviewer sides, is isolated-logic or unit-level, not a live integration
+  test. Named honestly, not hidden.
+- `capture_diff`'s own unscoped `git add -A` is intentional, not a bug (it's
+  what catches a writer straying outside `work/`) -- see [[explicit-refusal-over-silent-absorption]].
 
 ---
 

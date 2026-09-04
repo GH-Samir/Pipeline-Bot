@@ -47,6 +47,10 @@ def preflight():
         sys.exit(1)
 
 
+def check_writer_status(writer_status):
+    """True if it's safe to trust what the writer left on disk."""
+    return writer_status == "idle"
+
 if __name__ == "__main__":
     preflight()
     print("preflight ok: inside Herdr")
@@ -91,7 +95,7 @@ if __name__ == "__main__":
         # exists to stop trusting blindly. Whatever herdr reports about the
         # writer, checked *before* a single byte of its output is opened.
         writer_status = settled["agent"]["agent_status"]
-        if writer_status != "idle":
+        if not check_writer_status(writer_status):
             print(f"writer did not settle cleanly (status: {writer_status}); "
                   "refusing to trust anything on disk", file=sys.stderr)
             sys.exit(1)
